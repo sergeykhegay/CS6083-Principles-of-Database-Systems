@@ -8,11 +8,18 @@
 
       <?php
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
+          // flags
+          $login_required = isset($_GET["login_required"]);
           $email_empty = isset($_GET["email_empty"]);
           $password_empty = isset($_GET["password_empty"]);
           $login_failed = isset($_GET["login_failed"]);
 
           // Display errors
+          if ($login_required) {
+            echo "<div class=\"alert alert-warning\">
+                   <strong>Warning!</strong> You need to login first.
+                  </div>";
+          }
           if ($email_empty) {
             echo "<div class=\"alert alert-danger\">
                    <strong>Error!</strong> Field 'email' cannot be empty.

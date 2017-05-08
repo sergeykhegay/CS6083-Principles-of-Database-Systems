@@ -29,7 +29,7 @@
           VALUES ('$uid', '$password_hash');"
     );
     
-    return is_resource($result); // true or false
+    return is_resource($result); // true or falqse
   };
 
   function get_upasswordhash($uid) {

@@ -32,6 +32,7 @@
       } else {
         $args = $args . "&login_failed=true";
         header("Location: ./user_login.php?$args");
+        die();
       }
     }
   }

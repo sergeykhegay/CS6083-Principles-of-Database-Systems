@@ -15,7 +15,7 @@
         // flags
         $user_logged_out = isset($_GET["logged_out"]);
         $tag_all = $tag !== "art" &&
-                   $tag !== "comist" &&
+                   $tag !== "comics" &&
                    $tag !== "crafts" &&
                    $tag !== "music" &&
                    $tag !== "theater" &&
@@ -63,13 +63,8 @@
           <a href=".?tag=food">Food</a>
         </li>
       </ul>
-        
-
-
-
-
-
-
+      
+      <!-- List projects here based on tags -->
       <div class="page-header">
         <h1>Example page header <small>Subtext for header</small></h1>
       </div>
