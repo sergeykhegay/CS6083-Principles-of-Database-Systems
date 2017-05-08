@@ -19,7 +19,6 @@
           echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
         }
       ?>
-      
       <form method="post" action="./login.php">
         <div class="form-group row">
           <label for="inputUser" class="col-sm-2 col-form-label">User</label>

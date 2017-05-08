@@ -9,14 +9,14 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       
       <?php
-        if (isset($_SESSION["cname"])) {
+        if (isset($_SESSION["uid"])) {
           echo "
             <ul class='nav navbar-nav'>
               <li><a href='./user/dashboard.php'>Dashboard</a></li>
               <li><a href='./'>Projects</a></li>
             </ul>
             <p class='navbar-text navbar-right'><a href='./user_logout.php' class='navbar-link'>Log out.</a></p>
-            <p class='navbar-text navbar-right'>Signed in as <a href='./orders.php' class='navbar-link'>{$_SESSION["cname"]}.</a></p>
+            <p class='navbar-text navbar-right'>Signed in as <a href='./orders.php' class='navbar-link'>{$_SESSION["uid"]}.</a></p>
           ";
         } else {
           echo "

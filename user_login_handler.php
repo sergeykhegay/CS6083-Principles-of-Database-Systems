@@ -27,7 +27,7 @@
 
       if ($passwords_match) {
         $_SESSION["uid"] = $email;
-        header("Location: ./user_dashboard.php");
+        header("Location: ./dashboard.php");
         die();
       } else {
         $args = $args . "&login_failed=true";
