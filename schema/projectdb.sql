@@ -10,11 +10,11 @@ DROP TABLE IF EXISTS update CASCADE;
 
 -- ##################################### USERS
 CREATE TABLE users (
-  uid          varchar(45) NOT NULL,
-  upassword    varchar(45) NOT NULL,
-  uname        varchar(45) NULL,
-  uinterests   varchar(45) NULL,
-  ucity        varchar(45) NULL,
+  uid             varchar(45) NOT NULL,
+  upasswordhash   varchar(255) NOT NULL, -- http://php.net/manual/en/function.password-hash.php
+  uname           varchar(45) NULL,
+  uinterests      varchar(45) NULL,
+  ucity           varchar(45) NULL,
   PRIMARY KEY(uid)
 );
 
