@@ -3,44 +3,76 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <?php $_title = "Main @ Cabbage"; include "head.inc";?>
+  <?php $_title = "Main @ Cabbage"; include "inc_head.inc";?>
   <body>
     <div class="container">
-      <?php include "navbar.inc"; ?>
+      <?php include "inc_navbar.inc"; ?>
       
       <?php
-        $no_user_flag = $_GET["no_such_user"] == "true";
-        if ($no_user_flag) {
-          echo "<div class=\"alert alert-danger\"><strong>Error!</strong> The user does not exist.</div>";
-        }
-      ?>
-      <?php
-        if (isset($_GET["logged_out"])) {
+        // data
+        $tag = $_GET[tag];
+
+        // flags
+        $user_logged_out = isset($_GET["logged_out"]);
+        $tag_all = $tag !== "art" &&
+                   $tag !== "comist" &&
+                   $tag !== "crafts" &&
+                   $tag !== "music" &&
+                   $tag !== "theater" &&
+                   $tag !== "food";
+
+        // messages
+        if ($user_logged_out) {
           echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
         }
+
       ?>
-      
-      <form method="post" action="./login.php">
-        <div class="form-group row">
-          <label for="inputUser" class="col-sm-2 col-form-label">User</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" id="inputUser" placeholder="User" name="user">
-            <small id="fileHelp" class="form-text text-muted">You can add a new user <a href="./user.php">here</a>.</small>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="inputKeyword" class="col-sm-2 col-form-label">Keyword</label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" id="inputKeyword" placeholder="Keyword" name="keyword" value="<?php echo test_input($_GET["keyword"]) ?>">
-            <small id="fileHelp" class="form-text text-muted">Search for keyword in name or description</small>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="offset-sm-2 col-sm-10">
-            <button type="submit" class="btn btn-primary">I feel lucky!</button>
-          </div>
-        </div>
-      </form>
+      <!-- Image jumbotron -->
+      <div class="jumbotron" style="background: url('./images/explore-wallpaper-1280x768.jpg') no-repeat center center;
+                                    vertical-align: text-bottom;
+                                    text-align: center; 
+                                    font-weight: bold;
+                                    color: white;
+                                    height: 300px">
+        <h1 style="padding-top: 50px">E X P L O R E</h1>
+        <p>We are pleased to introduce you to our icredible set of fascinating projects! 
+          You can help thousands of people around the world to make the world a better place.</p>
+      </div>
+
+      <!-- Tags -->
+      <ul class="nav nav-pills nav-justified">
+        <li role="presentation" <?php if ($tag_all) echo "class='active'"; ?> >
+          <a href=".?">All</a>
+        </li>
+        <li role="presentation" <?php if ($tag === 'art') echo "class='active'"; ?>>
+          <a href=".?tag=art">Art</a>
+        </li>
+        <li role="presentation" <?php if ($tag === 'comics') echo "class='active'"; ?>>
+          <a href=".?tag=comics">Comics</a>
+        </li>
+        <li role="presentation" <?php if ($tag === 'crafts') echo "class='active'"; ?>>
+          <a href=".?tag=crafts">Crafts</a>
+        </li>
+        <li role="presentation" <?php if ($tag === 'music') echo "class='active'"; ?>>
+          <a href=".?tag=music">Music</a>
+        </li>
+        <li role="presentation" <?php if ($tag === 'theater') echo "class='active'"; ?>>
+          <a href=".?tag=theater">Theater</a>
+        </li>
+        <li role="presentation" <?php if ($tag === 'food') echo "class='active'"; ?>>
+          <a href=".?tag=food">Food</a>
+        </li>
+      </ul>
+        
+
+
+
+
+
+
+      <div class="page-header">
+        <h1>Example page header <small>Subtext for header</small></h1>
+      </div>
 
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

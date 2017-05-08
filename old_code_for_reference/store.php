@@ -3,10 +3,10 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <?php $_title = "Store @ Infinitely Pending Express"; include "head.inc";?>
+  <?php $_title = "Store @ Infinitely Pending Express"; include "inc_head.inc";?>
   <body>
     <div class="container">
-      <?php include "navbar.inc"; ?>
+      <?php include "inc_navbar.inc"; ?>
       
       <?php
         if (!isset($_SESSION["cname"])) {

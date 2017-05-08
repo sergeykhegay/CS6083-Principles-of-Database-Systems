@@ -1,10 +1,10 @@
 <?php require_once "./utils.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
-  <?php $_title = "Sign Up @ Cabbage"; include "./head.inc";?>
+  <?php $_title = "Sign Up @ Cabbage"; include "./inc_head.inc";?>
   <body>
     <div class="container">
-      <?php include "./navbar.inc"; ?>
+      <?php include "./inc_navbar.inc"; ?>
 
       <?php
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
