@@ -7,7 +7,7 @@
   };
 
   function get_db_connection() {
-    return pg_connect("host=localhost dbname=project user=sergey");
+    return pg_connect("host=localhost dbname=postgres user=postgres");
   };
 
 // USER
@@ -42,7 +42,28 @@
 
     return pg_fetch_array($result);
   }
+// PROJECT
+  function get_projects($category){
+    $db_connection = get_db_connection();
+    if($category == null){
+      $result = pg_query
+      ($db_connection, "SELECT * FROM project");
+    }
+    else{
+      $result = pg_query
+      ($db_connection, "SELECT * FROM project WHERE Lower(catname) = '$category';");
+    }
+    return $result;
+  }
 
+// PLEDGE
+  function get_pledges($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query
+    ($db_connection, "SELECT * FROM pledge natural join project WHERE uid = '$uid';");
+    
+    return $result;
+  }
 // PRODUCT
   function product_exists_and_available($pname) {
     $db_connection = get_db_connection();

@@ -17,7 +17,7 @@
         $tag_all = $tag !== "art" &&
                    $tag !== "comics" &&
                    $tag !== "crafts" &&
-                   $tag !== "music" &&
+                   $tag !== "Music" &&
                    $tag !== "theater" &&
                    $tag !== "food";
 
@@ -68,6 +68,55 @@
       <div class="page-header">
         <h1>Example page header <small>Subtext for header</small></h1>
       </div>
+
+      <head>
+        <link rel="stylesheet" type="text/css" href="grid_layout.css">
+      </head>
+
+
+      <table>
+        <?php $project = get_projects($tag);
+          while($row = pg_fetch_row($project)){
+            $user = $row[0];
+            $pid = $row[1];
+            $title = $row[3];
+            $description = $row[4];
+            $image = $row[5];
+            $start_date = $row[6];
+            $progress = 0;
+            if($row[12] != 0) {
+              $progress = $row[12]/$row[11] * 100;
+            }
+        ?>
+      <div class="col-sm-6 col-md-4 col-lg-3 mt-4">
+                <div class="card">
+                    <img class="card-img-top" src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif">
+                    <div class="card-block">
+                        <figure class="profile">
+                            <img src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" class="profile-avatar" alt="">
+                        </figure>
+                        <h4 class="card-title mt-3"> <?php echo $title ?></h4>
+                        <div class="meta">
+                            <div class="progress">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow=<?=$progress?>
+                              aria-valuemin="0" aria-valuemax="100" style="width:<?=$progress?>%">
+                                <?=$progress?>% Complete (success)
+                              </div>
+                            </div>
+                        </div>
+                        <div class="card-text">
+                            <?php echo $description ?>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small>Posted on <?php echo $start_date ?></small>
+                        <a href="project/?tag=<?=$pid?>"> <button class="btn btn-secondary float-right btn-sm">view </button></a>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+    </table>
+
 
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
