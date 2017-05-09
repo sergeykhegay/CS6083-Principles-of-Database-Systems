@@ -1,7 +1,11 @@
 <?php require_once "./utils.php"; ?>
+<?php
+  session_start();
+  require_once "./require_login.php"; 
+?>
 <!DOCTYPE html>
 <html lang="en">
-  <?php $_title = "Sign Up @ Cabbage"; include "./inc_head.inc";?>
+  <?php $_title = "User Profile @ Cabbage"; include "./inc_head.inc";?>
   <body>
     <div class="container">
       <?php include "./inc_navbar.inc"; ?>

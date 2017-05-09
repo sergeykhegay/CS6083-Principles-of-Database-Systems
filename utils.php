@@ -111,6 +111,22 @@
     return pg_fetch_array($result);
   }
 
+  function get_project_info($pid) {
+    $db_connection = get_db_connection();
+    $result = @pg_query($db_connection, 
+      "SELECT * 
+         FROM project, users
+        WHERE pid='$pid' AND
+              project.uid = users.uid;"
+    );
+    pg_close();
+
+    if (!isset($result)) {
+      return;
+    }
+    return pg_fetch_array($result);
+  }
+
 // PRODUCT
   function product_exists_and_available($pname) {
     $db_connection = get_db_connection();

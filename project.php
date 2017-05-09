@@ -10,15 +10,17 @@
       <?php
         // data
         $pid = test_input($_GET["pid"]);
-        $project = get_project($pid);
+        $project = get_project_info($pid);
 
         // flags
         $user_logged_in = isset($_SESSION["uid"]);
         $project_exists = isset($project);
 
         if ($project_exists) {
-          $pimage = $project["pimage"];
-          $ptitle = $project["ptitle"];
+          $image = $project["pimage"];
+          $title = $project["ptitle"];
+          $uid = $project["uid"];
+
         }
         // messages
         // if (!$user_logged_in) {
@@ -28,7 +30,7 @@
       ?>
 
       <!-- Image jumbotron -->
-      <div class="jumbotron" style="background: url('<?php echo "$pimage"; ?>') no-repeat center center;
+      <div class="jumbotron" style="background: url('<?php echo "$image"; ?>') no-repeat center center;
                                     vertical-align: text-bottom;
                                     text-align: center; 
                                     font-weight: bold;
@@ -39,7 +41,7 @@
       
       <!-- List project -->
       <div class="page-header">
-        <h1><?php echo "$ptitle"; ?></h1>
+        <h1><?php echo "$title"; ?> <small>created by <a href="./user.php?uid=<?=$uid ?>"><?=$uid ?></a></small></h1>
       </div>
 
     </div>

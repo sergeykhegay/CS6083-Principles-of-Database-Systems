@@ -3,7 +3,6 @@
   session_start();
   require_once "./require_login.php"; 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
   <?php $_title = "Create Project @ Cabbage"; include "./inc_head.inc";?>
@@ -13,25 +12,46 @@
 
       <?php
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
+          // data
+          $title = test_input($_GET["title"]);
+          $description = test_input($_GET["description"]);
+          $category = test_input($_GET["category"]);
+          $filepath = test_input($_GET["filepath"]);
+          $days = test_input($_GET["days"]);
+          $min = test_input($_GET["min"]);
+          $max = test_input($_GET["max"]);
+
           // flags
-          $email_empty = isset($_GET["email_empty"]);
-          $password_empty = isset($_GET["password_empty"]);
-          $login_failed = isset($_GET["login_failed"]);
+          $title_empty = isset($_GET["title_empty"]);
+          $description_empty = isset($_GET["description_empty"]);
+          $category_empty = isset($_GET["category_empty"]);
+          $filepath_empty = isset($_GET["filepath_empty"]);
+          $wrong_minmax = isset($_GET["wrong_minmax"]);
 
           // Display errors
-          if ($email_empty) {
+          if ($title_empty) {
             echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'email' cannot be empty.
+                   <strong>Error!</strong> Field 'title' cannot be empty.
                   </div>";
           }
-          if ($password_empty) {
+          if ($description_empty) {
             echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'password' cannot be empty.
+                   <strong>Error!</strong> Field 'description' cannot be empty.
                   </div>";
           }
-          if ($login_failed) {
+          if ($category_empty) {
             echo "<div class=\"alert alert-danger\">
-                    <strong>Error!</strong> Forgot your password? Well, we can do nothing... Or maybe you forgot to sign up <a href=\"./user_signup.php\">here</a>?
+                   <strong>Error!</strong> Field 'category' cannot be empty.
+                  </div>";
+          }
+          if ($filepath_empty) {
+            echo "<div class=\"alert alert-danger\">
+                   <strong>Error!</strong> You have to upload an image.
+                  </div>";
+          }
+          if ($wrong_minmax) {
+            echo "<div class=\"alert alert-danger\">
+                    <strong>Error!</strong> Inconsistent minimum and maximum pledges.
                   </div>";
           }
         }
@@ -45,7 +65,7 @@
           <div class="col-sm-10">
             <input type="text" class="form-control" id="inputTitle" 
                    aria-describedby="titleHelp" placeholder="Enter title" name="title"
-                   <?php if (!$title_empty && $fillin_form) echo "value='$title'";?>
+                   <?php if (!$title_empty) echo "value='$title'";?>
             >
           </div>
         </div>
@@ -56,7 +76,7 @@
           <div class="col-sm-10">
             <textarea class="form-control" rows="4" id="inputDescription" 
                    aria-describedby="descriptionHelp" placeholder="Enter description" name="description"
-                   <?php if (!$description_empty && $fillin_form) echo "value='$description'";?>
+                   <?php if (!$description_empty) echo "value='$description'";?>
             ></textarea>
           </div>
         </div>
@@ -66,16 +86,13 @@
           <label for="inputCategory" class="col-sm-2 col-form-label">Category *</label>
           <div class="col-sm-10">
             <select class="form-control" id="inputCategory" 
-                   aria-describedby="categoryHelp" name="category"
-                   <?php if (!$category_empty && $fillin_form) echo "value='$category'";?>
-                   selected="Comics"
-            >
-              <option>Art</option>
-              <option>Comics</option>
-              <option>Crafts</option>
-              <option>Music</option>
-              <option>Theater</option>
-              <option>Food</option>
+                   aria-describedby="categoryHelp" name="category">
+              <option <?php if ($category === "Art") echo "selected"; ?>>Art</option>
+              <option <?php if ($category === "Comics") echo "selected"; ?>>Comics</option>
+              <option <?php if ($category === "Crafts") echo "selected"; ?>>Crafts</option>
+              <option <?php if ($category === "Music") echo "selected"; ?>>Music</option>
+              <option <?php if ($category === "Theater") echo "selected"; ?>>Theater</option>
+              <option <?php if ($category === "Food") echo "selected"; ?>>Food</option>
             </select>
           </div>
         </div>
@@ -88,15 +105,13 @@
             <input type="file" class="form-control" id="inputFile" name="filename">
             <small id="fileHelp" class="form-text text-muted">
               <?php 
-                if (empty($filepath)) {
-                  echo "No image uploaded";
+                if ($filepath_empty) {
+                  echo "<span style='color:red'>No image uploaded<span>";
                 } else {
-                  $name = basename($filepath);
-                  echo "File $name is uploaded";
+                  echo "File is uploaded to: <a href='$filepath' target=blank>$filepath</a>";
                 }
               ?>
             </small>
-            <small id="fileHelp2" class="form-text text-muted"></small>
           </div>
           <!-- <div class="col-sm-3 progress progress-striped">
             <div class="progress-bar" style="width: 60%;">
@@ -112,7 +127,8 @@
         <div class="form-group row">
           <label for="inputNumber" class="col-sm-2 col-form-label">Funding Period</label>
           <div class="col-sm-10">
-            <input type="number" class="form-control" id="inputNumber" name="days" value="30">
+            <input type="number" class="form-control" id="inputNumber" name="days" 
+                   value="<?php if (isset($days)) echo $days; else echo 30; ?>">
           </div>
         </div>
         
@@ -120,12 +136,14 @@
         <div class="form-group row">
           <label for="inputMin" class="col-sm-2 col-form-label">Requeried</label>
           <div class="col-sm-4">
-            <input type="number" class="form-control" id="inputMin" name="min" value="100">
+            <input type="number" class="form-control" id="inputMin" name="min" 
+                   value="<?php if (isset($min)) echo $min; else echo 100; ?>">
             <small id="minHelp" class="form-text text-muted">In USD. Minimum amount requered for successful funding.</small>
           </div>
           <label for="inputMax" class="col-sm-2 col-form-label">Stop Funding At</label>
           <div class="col-sm-4">
-            <input type="number" class="form-control" id="inputMax" name="max" value="200">
+            <input type="number" class="form-control" id="inputMax" name="max" 
+                   value="<?php if (isset($mmax)) echo $max; else echo 200; ?>">
             <small id="maxHelp" class="form-text text-muted">In USD. Funding will successfully finish when this amount is reached.</small>
           </div>
         </div>
@@ -158,7 +176,7 @@
             case 'video/mp4':
               break;
             default:
-              $("#fileHelp2").html("<span class='warning'>"+ftype+"</span>. Unsupported file type!");
+              alert("Unsupported file type!");
               return false
           }
         

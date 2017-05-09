@@ -1,6 +1,5 @@
 <?php require_once "utils.php"; ?>
 <?php session_start(); ?>
-
 <!DOCTYPE html>
 <html lang="en">
   <?php $_title = "Main @ Cabbage"; include "inc_head.inc";?>
@@ -65,15 +64,9 @@
       </ul>
       
       <!-- List projects here based on tags -->
-      <div class="page-header">
-        <h1>Example page header <small>Subtext for header</small></h1>
-      </div>
-
-      <head>
-        <link rel="stylesheet" type="text/css" href="grid_layout.css">
-      </head>
-
-
+      
+      
+      
       <table>
         <?php $project = get_projects($tag);
           while ($row = pg_fetch_row($project)) {
@@ -88,14 +81,14 @@
               $progress = $row[12]/$row[11] * 100;
             }
         ?>
-            <div class="col-sm-6 col-md-4 col-lg-3 mt-4">
+            <div class="col-sm-6 col-md-4 col-lg-4 mt-4" style="padding-top:30px">
               <div class="card">
                 <img class="card-img-top" src="<?php echo "$image" ?>">
                 <div class="card-block">
                   <figure class="profile">
                     <img src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" class="profile-avatar" alt="">
                   </figure>
-                  <h4 class="card-title mt-3"><a href="./project.php?pid=<?= $pid ?>"><?php echo $title ?><a/></h4>
+                  <h4 class="card-title mt-3"><a href="./project.php?pid=<?= $pid ?>"><?php echo $title ?></a></h4>
                   <div class="meta">
                     <div class="progress">
                       <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow=<?=$progress?>
@@ -110,15 +103,19 @@
                 </div>
                 <div class="card-footer">
                   <small>Posted on <?php echo $start_date ?></small>
-                  <a href="./project.php?pid=<?=$pid ?>"><button class="btn btn-secondary float-right btn-sm">view</button></a>
+                  <a href="./project.php?pid=<?=$pid ?>">
+                    <button class="btn btn-secondary float-right btn-sm">view</button>
+                  </a>
                 </div>
               </div>
             </div>
-      <?php } // end of while ?>
-    </table>
-
+        <?php } // end of while ?>
+      </table>
 
     </div>
+
+    <link rel="stylesheet" type="text/css" href="grid_layout.css">
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
