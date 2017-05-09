@@ -59,7 +59,6 @@
     return $result;
   }
 
-<<<<<<< HEAD
 // PLEDGE
   function get_pledges($uid){
     $db_connection = get_db_connection();
@@ -68,7 +67,7 @@
     
     return $result;
   }
-=======
+
 // PROJECT
   function insert_and_return_project($uid, $title, $description, $category, 
                           $filepath, $days, $min, $max) {
@@ -111,7 +110,6 @@
     return pg_fetch_array($result);
   }
 
->>>>>>> 8f062651bd56da1adc406465cab34b6961bc070a
 // PRODUCT
   function product_exists_and_available($pname) {
     $db_connection = get_db_connection();
