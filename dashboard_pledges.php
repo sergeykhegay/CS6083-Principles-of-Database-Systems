@@ -31,31 +31,51 @@
 
         }
       ?>
-      
 
+      
       <div class="container">
         <table class="table">
           <caption> </caption>
         <tr>
-          <<!-- th>Project</th>
+          <th>Project</th>
           <th>Amount</th>
           <th>Date</th>
-          <th>Status</th>
           <th>Rating</th>
- -->        </tr>
+        </tr>
         <?php
-        while($row = pg_fetch_row($pledges)){
-            echo "<tr>";
-            echo "<td>" . $row[9] . "</td>";
-            echo "<td>" . $row[3] . "</td>";
-            echo "<td>" . $row[5] . "</td>";
-            echo "<td>" . $row[15] . "</td>";
+        while($row = pg_fetch_object($pledges)){
+            if($row->psuccess == 't'){
+              $status = "Successful";
+            }
+            else if($row->pactive == 'f'){
+              $status = "Failed";
+            }
+            else{
+              $status = "Funding";
+            }
+        ?>
+        <tr>
+        <td class="col-sm-8 col-md-5">
+                        <div class="media">
+                            <img class="pull-left" src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" style="width: 150px; height: 120px;"> </a>
+                            <div class="media-body">
+                                <h4 class="media-heading"><a href="project/?pid=<?=$row->pid?>"><?=$row->ptitle?></a></h4>
+                                <h5 class="media-heading"> by <a href="#"><?=$row->uid?></a></h5>
+                                <span>Status: </span><span class="text-success"><?=$status?></span>
+                                <a href="#"> <button class="btn btn-info btn-xs">details</button></a>
+                            </div>
+                        </div>
+
+       </td>
+        <td > $<?=$row->plamount?>.00 </td>
+        <td > <?=substr($row->pldate,0,-7)?> </td>
+        <td>
+          
+        </td>
+      </tr>
+        <?php
         }
         ?>
-        <td><form action="/~justine/foo/buy.php" method = "post">
-        <input type="submit" value = "Rate Now" class="btn btn-default">
-        </form></td>
-       <!-- </tr> -->
         </table>
       </div>
 
@@ -65,6 +85,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+
+  
 
   </body>
 </html>
