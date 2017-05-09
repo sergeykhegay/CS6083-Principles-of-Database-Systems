@@ -54,14 +54,11 @@
         ?>
         <td><form action="/~justine/foo/buy.php" method = "post">
         <input type="submit" value = "Rate Now" class="btn btn-default">
-        <input type='hidden' name='product_name' value='<?php echo "$product";?>'/> 
-    </form></td>
+        </form></td>
        <!-- </tr> -->
         </table>
       </div>
 
-    <label for="input-1" class="control-label">Rate This</label>
-        <input id="input-1" name="input-1" class="rating rating-loading" data-min="0" data-max="5" data-step="1">
 
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
