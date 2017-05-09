@@ -56,6 +56,7 @@ CREATE UNIQUE INDEX ON project (pid);
 -- ##################################### CREDITCARD
 CREATE TABLE creditcard (
   uid            varchar(45) NOT NULL,
+  ccname         varchar(45) NOT NULL,
   ccnumber       varchar(16) NOT NULL,
   ccaddeddate    timestamp DEFAULT current_timestamp,
   ccactive       boolean DEFAULT FALSE,
