@@ -102,9 +102,9 @@
                   </div>
                 </div>
                 <div class="card-footer">
-                  <small>Posted on <?php echo $start_date ?></small>
+                  <small>Posted on <?php echo substr($start_date, 0, -7) ?></small>
                   <a href="./project.php?pid=<?=$pid ?>">
-                    <button class="btn btn-secondary float-right btn-sm">view</button>
+                    <button class="btn btn-info btn-xs">view</button>
                   </a>
                 </div>
               </div>
