@@ -11,6 +11,10 @@
       <?php include "./inc_navbar.inc"; ?>
 
       <?php
+        $default_min = "200";
+        $default_max = "500";
+        $default_days = "30";
+
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
           // data
           $title = test_input($_GET["title"]);
@@ -31,17 +35,17 @@
           // Display errors
           if ($title_empty) {
             echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'title' cannot be empty.
+                   <strong>Error!</strong> Title cannot be empty.
                   </div>";
           }
           if ($description_empty) {
             echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'description' cannot be empty.
+                   <strong>Error!</strong> Description cannot be empty.
                   </div>";
           }
           if ($category_empty) {
             echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'category' cannot be empty.
+                   <strong>Error!</strong> Category cannot be empty.
                   </div>";
           }
           if ($filepath_empty) {
@@ -51,16 +55,18 @@
           }
           if ($wrong_minmax) {
             echo "<div class=\"alert alert-danger\">
-                    <strong>Error!</strong> Inconsistent minimum and maximum pledges.
+                    <strong>Error!</strong> Inconsistent minimum and maximum amounts.
                   </div>";
           }
         }
       ?>
-      
-      <form method="post" action="./project_create_handler.php">
+      <div class="page-header">
+        <h1>Create a New Project <small>Make the world a better place...</small></h1>
+      </div>
+      <form class="form-horizontal" method="post" action="./project_create_handler.php">
         
         <!-- project title -->
-        <div class="form-group row">
+        <div class="form-group row <?php if ($title_empty) echo "has-error";?>">
           <label for="inputTitle" class="col-sm-2 col-form-label">Title *</label>
           <div class="col-sm-10">
             <input type="text" class="form-control" id="inputTitle" 
@@ -71,7 +77,7 @@
         </div>
 
         <!-- description -->
-        <div class="form-group row">
+        <div class="form-group row <?php if ($description_empty) echo "has-error";?>">
           <label for="inputDescription" class="col-sm-2 col-form-label">Description *</label>
           <div class="col-sm-10">
             <textarea class="form-control" rows="4" id="inputDescription" 
@@ -82,7 +88,7 @@
         </div>
 
         <!-- category -->
-        <div class="form-group row">
+        <div class="form-group row <?php if ($category_empty) echo "has-error";?>">
           <label for="inputCategory" class="col-sm-2 col-form-label">Category *</label>
           <div class="col-sm-10">
             <select class="form-control" id="inputCategory" 
@@ -98,7 +104,7 @@
         </div>
 
         <!-- image-->
-        <div class="form-group row">
+        <div class="form-group row <?php if ($filepath_empty) echo "has-error";?>">
           <label for="inputImage" class="col-sm-2 col-form-label">Image *</label>
           <div class="col-sm-9">
             <input type="hidden" class="form-control" id="inputFilePath" name="filepath" value=<?php echo "$filepath" ?>>
@@ -128,22 +134,22 @@
           <label for="inputNumber" class="col-sm-2 col-form-label">Funding Period</label>
           <div class="col-sm-10">
             <input type="number" class="form-control" id="inputNumber" name="days" 
-                   value="<?php if (isset($days)) echo $days; else echo 30; ?>">
+                   <?php if (isset($days)) echo "value=$days"; ?> >
           </div>
         </div>
         
         <!-- min and max amount -->
-        <div class="form-group row">
-          <label for="inputMin" class="col-sm-2 col-form-label">Requeried</label>
+        <div class="form-group row <?php if ($wrong_minmax) echo "has-error";?>">
+          <label for="inputMin" class="col-sm-2 col-form-label">Required</label>
           <div class="col-sm-4">
             <input type="number" class="form-control" id="inputMin" name="min" 
-                   value="<?php if (isset($min)) echo $min; else echo 100; ?>">
+                   value="<?php echo(isset($min)) ? ($min) : ($default_min);?>">
             <small id="minHelp" class="form-text text-muted">In USD. Minimum amount requered for successful funding.</small>
           </div>
           <label for="inputMax" class="col-sm-2 col-form-label">Stop Funding At</label>
           <div class="col-sm-4">
             <input type="number" class="form-control" id="inputMax" name="max" 
-                   value="<?php if (isset($mmax)) echo $max; else echo 200; ?>">
+                   value="<?php if (isset($max)) echo $max; ?>">
             <small id="maxHelp" class="form-text text-muted">In USD. Funding will successfully finish when this amount is reached.</small>
           </div>
         </div>

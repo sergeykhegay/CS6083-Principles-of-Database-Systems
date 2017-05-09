@@ -9,17 +9,24 @@
       
       <?php
         // data
-        $tag = $_GET[tag];
-
+        $tag = $_GET["tag"];
+        $keyword = test_input($_GET["keyword"]);
+        
         // flags
         $user_logged_out = isset($_GET["logged_out"]);
-        $tag_all = $tag !== "art" &&
-                   $tag !== "comics" &&
-                   $tag !== "crafts" &&
-                   $tag !== "Music" &&
-                   $tag !== "theater" &&
-                   $tag !== "food";
+        $tag_all = !($tag === "art") &&
+                   !($tag === "comics") &&
+                   !($tag === "crafts") &&
+                   !($tag === "music") &&
+                   !($tag === "theater") &&
+                   !($tag === "food");
+        $keyword_is_set = !empty($keyword);
 
+        // Show projects by keyword, not tags
+        if ($keyword_is_set) {
+          $tag_all = true;
+        }
+        
         // messages
         if ($user_logged_out) {
           echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
@@ -38,37 +45,51 @@
           You can help thousands of people around the world to make the world a better place.</p>
       </div>
 
-      <!-- Tags -->
-      <ul class="nav nav-pills nav-justified">
-        <li role="presentation" <?php if ($tag_all) echo "class='active'"; ?> >
-          <a href=".?">All</a>
-        </li>
-        <li role="presentation" <?php if ($tag === 'art') echo "class='active'"; ?>>
-          <a href=".?tag=art">Art</a>
-        </li>
-        <li role="presentation" <?php if ($tag === 'comics') echo "class='active'"; ?>>
-          <a href=".?tag=comics">Comics</a>
-        </li>
-        <li role="presentation" <?php if ($tag === 'crafts') echo "class='active'"; ?>>
-          <a href=".?tag=crafts">Crafts</a>
-        </li>
-        <li role="presentation" <?php if ($tag === 'music') echo "class='active'"; ?>>
-          <a href=".?tag=music">Music</a>
-        </li>
-        <li role="presentation" <?php if ($tag === 'theater') echo "class='active'"; ?>>
-          <a href=".?tag=theater">Theater</a>
-        </li>
-        <li role="presentation" <?php if ($tag === 'food') echo "class='active'"; ?>>
-          <a href=".?tag=food">Food</a>
-        </li>
-      </ul>
       
+      <!-- Tags -->
+      <form action="./index.php" method="GET" >
+        <ul class="nav nav-tabs nav-justified"> 
+          <li role="presentation">
+              <input type="text" class="form-control" placeholder="Search" 
+                     name="keyword" value="<?=$keyword?>" style="width:150px">
+          </li>
+          <li role="presentation" style="margin-left:-50px">
+            <button type="submit" class="btn btn-default" style="width:auto">Submit</button>
+          </li>
+          <li role="presentation" <?php if ($tag_all) echo "class='active'"; ?> >
+            <a href=".?">All</a>
+          </li>
+          <li role="presentation" <?php if ($tag === 'art' && !$tag_all) echo "class='active'"; ?>>
+            <a href=".?tag=art">Art</a>
+          </li>
+          <li role="presentation" <?php if ($tag === 'comics' && !$tag_all) echo "class='active'"; ?>>
+            <a href=".?tag=comics">Comics</a>
+          </li>
+          <li role="presentation" <?php if ($tag === 'crafts' && !$tag_all) echo "class='active'"; ?>>
+            <a href=".?tag=crafts">Crafts</a>
+          </li>
+          <li role="presentation" <?php if ($tag === 'music' && !$tag_all) echo "class='active'"; ?>>
+            <a href=".?tag=music">Music</a>
+          </li>
+          <li role="presentation" <?php if ($tag === 'theater' && !$tag_all) echo "class='active'"; ?>>
+            <a href=".?tag=theater">Theater</a>
+          </li>
+          <li role="presentation" <?php if ($tag === 'food' && !$tag_all) echo "class='active'"; ?>>
+            <a href=".?tag=food">Food</a>
+          </li>
+        </ul>
+      </form>
+       
+
       <!-- List projects here based on tags -->
       
       
       
       <table>
-        <?php $project = get_projects($tag);
+        <?php 
+          $project =  ($keyword_is_set) ? get_projects_by_keyword($keyword) 
+                                        : get_projects($tag);
+
           while ($row = pg_fetch_row($project)) {
             $user = $row[0];
             $pid = $row[1];

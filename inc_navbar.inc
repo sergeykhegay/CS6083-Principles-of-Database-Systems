@@ -23,8 +23,8 @@
                 </ul>
               </li>
               <li><a href='./'>Explore</a></li>
-              <li><a href='./project_create.php'>Create</a></li>
-              <li><a href='./user.php'>Connect</a></li>
+              <li><a href='./project_create.php?min=200&max=500&days=30'>Create</a></li>
+              <!-- <li><a href='./user.php'>Connect</a></li> -->
             </ul>
             <p class='navbar-text navbar-right'><a href='./user_logout.php' class='navbar-link'>Log out</a></p>
             <p class='navbar-text navbar-right'>Signed in as <a href='./dashboard_profile.php' class='navbar-link'>{$_SESSION["uid"]}</a></p>

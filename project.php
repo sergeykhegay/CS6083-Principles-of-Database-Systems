@@ -19,6 +19,7 @@
         if ($project_exists) {
           $image = $project["pimage"];
           $title = $project["ptitle"];
+          $description = $project["pdescription"];
           $uid = $project["uid"];
 
         }
@@ -41,8 +42,27 @@
       
       <!-- List project -->
       <div class="page-header">
-        <h1><?php echo "$title"; ?> <small>created by <a href="./user.php?uid=<?=$uid ?>"><?=$uid ?></a></small></h1>
+            <h1><?php echo "$title"; ?> <small>created by <a href="./user.php?uid=<?=$uid ?>"><?=$uid ?></a></small></h1>
+          </div>
+      <div class="row show-grid">
+        
+        <div class="col-md-6">
+          
+          <div>
+            <?php echo "$description" ?> Expanding on the CSS provided by user2136179, you can also do bottom borders. It requires using matchHeight but can get your Bootstrap Grid looking like a table grid. Check it out
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          
+          <div>
+            <?php echo "$description" ?>
+          </div>
+        </div>
       </div>
+
+
+
 
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

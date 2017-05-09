@@ -60,16 +60,27 @@
     return $result;
   }
 
-// PLEDGE
-  function get_pledges($uid){
+  function get_projects_by_keyword($keyword) {
     $db_connection = get_db_connection();
-    $result = pg_query
-    ($db_connection, "SELECT * FROM pledge natural join project WHERE uid = '$uid';");
+    $result = null;
+
+    if (empty($keyword)) {
+      $result = pg_query($db_connection, "SELECT * FROM project;");
+    } else {
+      $result = pg_query($db_connection, 
+        "SELECT * 
+         FROM project 
+         WHERE pdescription ILIKE '%$keyword%' OR
+               ptitle ILIKE '%$keyword%' OR
+               catname ILIKE '%$keyword%';");
+    }
     
+    // if (!is_resource($result)) {
+    //   return null;
+    // }
     return $result;
   }
 
-// PROJECT
   function insert_and_return_project($uid, $title, $description, $category, 
                           $filepath, $days, $min, $max) {
     $db_connection = get_db_connection();
@@ -126,6 +137,16 @@
     }
     return pg_fetch_array($result);
   }
+
+// PLEDGE
+  function get_pledges($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query
+    ($db_connection, "SELECT * FROM pledge natural join project WHERE uid = '$uid';");
+    
+    return $result;
+  }
+
 
 // PRODUCT
   function product_exists_and_available($pname) {
