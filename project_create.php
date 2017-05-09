@@ -80,7 +80,7 @@
           </div>
         </div>
 
-        <!-- image TODO-->
+        <!-- image-->
         <div class="form-group row">
           <label for="inputImage" class="col-sm-2 col-form-label">Image *</label>
           <div class="col-sm-9">
@@ -96,9 +96,15 @@
                 }
               ?>
             </small>
+            <small id="fileHelp2" class="form-text text-muted"></small>
           </div>
+          <!-- <div class="col-sm-3 progress progress-striped">
+            <div class="progress-bar" style="width: 60%;">
+              <span class="sr-only">60% Complete</span>
+            </div>
+          </div> -->
           <div class="col-sm-1">
-            <button type="button" class="btn btn-default">Upload</button>
+            <button type="button" class="btn btn-default" id="uploadButton">Upload</button>
           </div>  
         </div>
 
@@ -136,6 +142,74 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+      function beforeSubmit(){
+        //check whether client browser fully supports all File API
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+          var fsize = $('#inputFile')[0].files[0].size; //get file size
+          var ftype = $('#inputFile')[0].files[0].type; // get file type
+          //allow file types 
+          switch (ftype) {
+            case 'image/png': 
+            case 'image/gif': 
+            case 'image/jpeg': 
+            case 'image/pjpeg':
+            case 'video/mp4':
+              break;
+            default:
+              $("#fileHelp2").html("<span class='warning'>"+ftype+"</span>. Unsupported file type!");
+              return false
+          }
+        
+          //Allowed file size is less than 5 MB (1048576 = 1 mb)
+          if (fsize > 5242880) {
+            alert("<b>"+fsize +"</b> Too big file! <br />File is too big, it should be less than 5 MB.");
+            return false
+          }
+        } else {
+          //Error for older unsupported browsers that doesn't support HTML5 File API
+          alert("Please upgrade your browser, because your current browser lacks some new features we need!");
+          return false
+        }
+    };
+
+    $(document).ready(function() {
+      $('#uploadButton').on('click', function() {
+        if (beforeSubmit() === null) {
+          return false;
+        }
+
+        var data = new FormData();
+        data.append('filename', $('#inputFile')[0].files[0]);
+        console.log($('#inputFile')[0].files);
+        $.ajax({
+          type: 'POST',               
+          processData: false, // important
+          contentType: false, // important
+          data: data,
+          url: "./upload.php",
+          dataType : 'json',
+          success: function(data, textStatus, jqXHR) {
+            if (typeof data.error === 'undefined') {
+              console.log(data);
+              filepath = data["filepath"];
+              $('#fileHelp').html("File is uploaded to: <a href='" + filepath + "' target=blank>" + filepath + "</a>");
+              // $('#inputFile').val("");
+              $('#inputFilePath').val(filepath);
+            } else {
+              console.log('ERRORS success: ' + data.error);
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.log('ERRORS error: ' + textStatus);
+          }
+        }); 
+
+        return false; 
+      }); 
+    });
+    </script>
 
   </body>
 </html>
