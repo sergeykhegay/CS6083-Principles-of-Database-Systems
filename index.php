@@ -122,7 +122,7 @@
                     <?php echo $description ?>
                   </div>
                 </div>
-                <div class="card-footer">
+                <div class="card-footer pull-right">
                   <small>Posted on <?php echo substr($start_date, 0, -7) ?></small>
                   <a href="./project.php?pid=<?=$pid ?>">
                     <button class="btn btn-info btn-xs">view</button>

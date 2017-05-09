@@ -80,6 +80,7 @@ CREATE TABLE likes (
   uid        varchar(45) NOT NULL,
   pid        int NOT NULL,
   likedate   timestamp DEFAULT current_timestamp,
+  likeactive boolean DEFAULT TRUE,
   PRIMARY KEY (uid, pid),
   FOREIGN KEY (uid) REFERENCES users (uid),
   FOREIGN KEY (pid) REFERENCES project (pid)
@@ -88,6 +89,7 @@ CREATE TABLE likes (
 
 -- ##################################### COMMENT
 CREATE TABLE comment (
+  cid       SERIAL NOT NULL,
   uid       varchar(45) NOT NULL,
   pid       int NOT NULL,
   comdate   timestamp DEFAULT current_timestamp,

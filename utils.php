@@ -6,6 +6,7 @@
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
+    $data = pg_escape_string($data);
     return $data;
   };
 
@@ -127,12 +128,12 @@
     $result = @pg_query($db_connection, 
       "SELECT * 
          FROM project, users
-        WHERE pid='$pid' AND
+        WHERE pid=$pid AND
               project.uid = users.uid;"
     );
     pg_close();
 
-    if (!isset($result)) {
+    if (!is_resource($result)) {
       return;
     }
     return pg_fetch_array($result);
@@ -147,6 +148,88 @@
     return $result;
   }
 
+
+// COMMENT
+  function get_comments($pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM comment, users
+        WHERE pid=$pid AND
+              comment.uid = users.uid
+        ORDER BY comdate DESC;"
+    );
+    pg_close();
+
+    if (!is_resource($result)) {
+      return null;
+    }
+    return pg_fetch_all($result);
+  }
+
+  function insert_and_return_comment($uid, $pid, $comtext) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO comment (uid, pid, comtext)
+        VALUES ('$uid', '$pid', '$comtext')
+        RETURNING cid;"
+    );
+    pg_close();
+
+    if (!is_resource($result))
+      return;
+    return pg_fetch_array($result);
+  }
+
+// LIKE
+
+  function like_exists($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM likes
+        WHERE pid='$pid' AND uid='$uid';"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  }
+
+  function insert_like($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO likes (uid, pid)
+        VALUES ('$uid', '$pid');"
+    );
+    pg_close();
+
+    return is_resource($result);
+  }
+
+  function update_like_to_active($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE likes
+       SET likedate = current_timestamp,
+           likeactive = TRUE
+       WHERE uid='$uid' AND
+             pid='$pid';"
+    );
+    pg_close();
+    return is_resource($result);
+  }
+
+  function update_like_to_not_active($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE likes
+       SET likedate = current_timestamp,
+           likeactive = FALSE
+       WHERE uid='$uid' AND 
+             pid='$pid';"
+    );
+    pg_close();
+    return is_resource($result);
+  }
 
 // PRODUCT
   function product_exists_and_available($pname) {
