@@ -1,3 +1,5 @@
+<?php require_once "utils_consts.php"; ?>
+
 <?php
   function test_input($data) {
     $data = trim($data);
@@ -7,7 +9,8 @@
   };
 
   function get_db_connection() {
-    return pg_connect("host=localhost dbname=postgres user=postgres");
+    // "host=localhost dbname=project user=sergey"
+    return pg_connect($CONNECTION_STRING);
   };
 
 // USER
@@ -29,7 +32,7 @@
           VALUES ('$uid', '$password_hash');"
     );
     
-    return is_resource($result); // true or falqse
+    return is_resource($result); // true or false
   };
 
   function get_upasswordhash($uid) {
@@ -56,6 +59,7 @@
     return $result;
   }
 
+<<<<<<< HEAD
 // PLEDGE
   function get_pledges($uid){
     $db_connection = get_db_connection();
@@ -64,6 +68,50 @@
     
     return $result;
   }
+=======
+// PROJECT
+  function insert_and_return_project($uid, $title, $description, $category, 
+                          $filepath, $days, $min, $max) {
+    $db_connection = get_db_connection();
+    $result = @pg_query($db_connection, 
+      "INSERT INTO project (uid, catname, ptitle, pdescription, pimage, pfinishdate, pminamount, pmaxamount)
+          VALUES ('$uid', '$category', '$title', '$description', '$filepath', current_timestamp + interval '$days day', '$min', '$max')
+          RETURNING pid;"
+    );
+    
+    pg_close();
+    if (!is_resource($result))
+      return;
+    return pg_fetch_array($result);
+  };
+
+  function project_exists($pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM project
+        WHERE pid='$pid';"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  };
+
+  function get_project($pid) {
+    $db_connection = get_db_connection();
+    $result = @pg_query($db_connection, 
+      "SELECT * 
+         FROM project
+        WHERE pid='$pid';"
+    );
+    pg_close();
+
+    if (!isset($result)) {
+      return;
+    }
+    return pg_fetch_array($result);
+  }
+
+>>>>>>> 8f062651bd56da1adc406465cab34b6961bc070a
 // PRODUCT
   function product_exists_and_available($pname) {
     $db_connection = get_db_connection();
