@@ -1,0 +1,7 @@
+- Pledges
+- Comments
+- Follows
+- Likes
+- Credit Card
+- User Profile (Dashboard)
+- User Profile (Public)
