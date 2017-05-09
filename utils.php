@@ -1,6 +1,7 @@
-<?php require_once "utils_consts.php"; ?>
-
 <?php
+
+  require_once "utils_consts.php";
+
   function test_input($data) {
     $data = trim($data);
     $data = stripslashes($data);
@@ -10,7 +11,7 @@
 
   function get_db_connection() {
     // "host=localhost dbname=project user=sergey"
-    return pg_connect($CONNECTION_STRING);
+    return pg_connect(get_connection_string());
   };
 
 // USER
@@ -59,7 +60,6 @@
     return $result;
   }
 
-<<<<<<< HEAD
 // PLEDGE
   function get_pledges($uid){
     $db_connection = get_db_connection();
@@ -68,7 +68,7 @@
     
     return $result;
   }
-=======
+
 // PROJECT
   function insert_and_return_project($uid, $title, $description, $category, 
                           $filepath, $days, $min, $max) {
@@ -111,7 +111,6 @@
     return pg_fetch_array($result);
   }
 
->>>>>>> 8f062651bd56da1adc406465cab34b6961bc070a
 // PRODUCT
   function product_exists_and_available($pname) {
     $db_connection = get_db_connection();
