@@ -1,6 +1,7 @@
-<?php require_once "utils_consts.php"; ?>
-
 <?php
+
+  require_once "utils_consts.php";
+
   function test_input($data) {
     $data = trim($data);
     $data = stripslashes($data);
@@ -10,7 +11,7 @@
 
   function get_db_connection() {
     // "host=localhost dbname=project user=sergey"
-    return pg_connect($CONNECTION_STRING);
+    return pg_connect(get_connection_string());
   };
 
 // USER

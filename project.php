@@ -1,6 +1,5 @@
 <?php require_once "utils.php"; ?>
 <?php session_start(); ?>
-
 <!DOCTYPE html>
 <html lang="en">
   <?php $_title = "Main @ Cabbage"; include "inc_head.inc";?>
