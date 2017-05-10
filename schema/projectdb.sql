@@ -29,7 +29,7 @@ CREATE TABLE category (
 -- ##################################### PROJECT
 CREATE TABLE project (
   uid              varchar(45) NOT NULL,
-  pid              SERIAL NOT NULL,
+  pid              UNIQUE SERIAL NOT NULL,
 
   catname          varchar(16) NOT NULL,
   ptitle           varchar(45) NOT NULL,
@@ -55,6 +55,7 @@ CREATE UNIQUE INDEX ON project (pid);
 
 -- ##################################### CREDITCARD
 CREATE TABLE creditcard (
+  ccid           SERIAL NOT NULL UNIQUE ,
   uid            varchar(45) NOT NULL,
   ccname         varchar(45) NOT NULL,
   ccnumber       varchar(16) NOT NULL,

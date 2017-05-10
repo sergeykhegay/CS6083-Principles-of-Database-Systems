@@ -15,6 +15,11 @@
     return pg_connect(get_connection_string());
   };
 
+  function pg_to_php_date($pg_date) {
+    date_default_timezone_set("UTC");
+    return date('M/d/Y', strtotime($pg_date));
+  }
+
 // USER
   function user_exists($uid) {
     $db_connection = get_db_connection();

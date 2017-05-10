@@ -16,7 +16,8 @@
       $res = update_like_to_not_active($uid, $pid);
     } 
     if ($res) {
-      $data = array('success' => 'unliked');
+      $data = array('success' => true,
+                    'message' => "unliked");
       echo json_encode($data);
     }
   } else {

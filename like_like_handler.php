@@ -19,7 +19,8 @@
     }
 
     if ($res) {
-      $data = array('success' => 'liked');
+      $data = array('success' => true,
+                    'message' => "liked");
       echo json_encode($data);
     }
   } else {
