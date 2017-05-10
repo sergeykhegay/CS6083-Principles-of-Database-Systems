@@ -82,8 +82,8 @@
           <div class="col-sm-10">
             <textarea class="form-control" rows="4" id="inputDescription" 
                    aria-describedby="descriptionHelp" placeholder="Enter description" name="description"
-                   <?php if (!$description_empty) echo "value='$description'";?>
-            ></textarea>
+                   
+            ><?php if (!$description_empty) echo "$description";?></textarea>
           </div>
         </div>
 
@@ -111,7 +111,7 @@
             <input type="file" class="form-control" id="inputFile" name="filename">
             <small id="fileHelp" class="form-text text-muted">
               <?php 
-                if ($filepath_empty) {
+                if (empty($filepath)) {
                   echo "<span style='color:red'>No image uploaded<span>";
                 } else {
                   echo "File is uploaded to: <a href='$filepath' target=blank>$filepath</a>";
@@ -217,10 +217,14 @@
           success: function(data, textStatus, jqXHR) {
             if (typeof data.error === 'undefined') {
               console.log(data);
-              filepath = data["filepath"];
-              $('#fileHelp').html("File is uploaded to: <a href='" + filepath + "' target=blank>" + filepath + "</a>");
-              // $('#inputFile').val("");
-              $('#inputFilePath').val(filepath);
+              if (data["success"]) {
+                filepath = data["filepath"];
+                $('#fileHelp').html("File is uploaded to: <a href='" + filepath + "' target=blank>" + filepath + "</a>");
+                $('#inputFilePath').val(filepath);
+              } else {
+                $('#fileHelp').html("<span style='color:red'>" + data["message"] + "<span>");
+                $('#inputFilePath').val("");
+              }
             } else {
               console.log('ERRORS success: ' + data.error);
             }

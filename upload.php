@@ -19,45 +19,59 @@ if (isset($_FILES["filename"]) && $_FILES["filename"]["error"]== UPLOAD_ERR_OK) 
     
     //Is file size is less than allowed size.
     if ($_FILES["filename"]["size"] > 5242880) {
-        die("File size is too big!");
+        $data = array('success' => false, 
+                      'message' => "File is too big.");
+        echo json_encode($data);
+        die();
     }
     
     // allowed file type Server side check
-    switch (strtolower($_FILES['filename']['type']))
-        {
-            //allowed file types
-            case 'image/png': 
-            case 'image/gif': 
-            case 'image/jpeg': 
-            case 'image/pjpeg':
-            case 'text/plain':
-            case 'text/html': //html file
-            case 'application/x-zip-compressed':
-            case 'application/pdf':
-            case 'application/msword':
-            case 'application/vnd.ms-excel':
-            case 'video/mp4':
-                break;
-            default:
-                die('Unsupported File!'); //output error
+    switch (strtolower($_FILES['filename']['type'])) {
+        //allowed file types
+        case 'image/png': 
+        case 'image/gif': 
+        case 'image/jpeg': 
+        case 'image/pjpeg':
+        // case 'text/plain':
+        // case 'text/html': //html file
+        // case 'application/x-zip-compressed':
+        // case 'application/pdf':
+        // case 'application/msword':
+        // case 'application/vnd.ms-excel':
+        case 'video/mp4':
+            break;
+        default:
+            $data = array('success' => false, 
+                          'message' => "Unsupported format.");
+            echo json_encode($data);
+            die();
     }
-    
+
+    date_default_timezone_set("UTC");
     $File_Name          = strtolower($_FILES['filename']['name']);
     $File_Ext           = substr($File_Name, strrpos($File_Name, '.')); //get file extention
     $Random_Number      = rand(0, 9999999999); //Random number to be added to name.
-    $NewFileName        = $Random_Number.$File_Ext; //new file name
+    $Date               = date("y-m-d-H-i-s-");
+    $NewFileName        = $Date.$Random_Number.$File_Ext; //new file name
     
+
     if (move_uploaded_file($_FILES['filename']['tmp_name'], $UploadDirectory.$NewFileName )) {
         // do other stuff 
-        $data = array('success' => 'Form was submitted', 
+        $data = array('success' => true, 
                       'filepath' => $UploadDirectory.$NewFileName);
         echo json_encode($data);
         die();
     } else {
-        die('error uploading File!');
+        $data = array('success' => false, 
+                      'message' => "Error occured while uploading.");
+        echo json_encode($data);
     }    
 } else {
-    die('Something wrong with upload! Is "upload_max_filesize" set correctly?');
+    $data = array('success' => false, 
+                  'message' => "Server error. Please report to the technical support. Try smaller image size.");
+    echo json_encode($data);
+    // die('Something wrong with upload! Is "upload_max_filesize" set correctly?');
+    die();
 }
 
 ?>

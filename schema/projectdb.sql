@@ -25,11 +25,17 @@ CREATE TABLE category (
   PRIMARY KEY (catname)
 );
 
+INSERT INTO category (catname) VALUES ('Art');
+INSERT INTO category (catname) VALUES ('Comics');
+INSERT INTO category (catname) VALUES ('Crafts');
+INSERT INTO category (catname) VALUES ('Music');
+INSERT INTO category (catname) VALUES ('Theater');
+INSERT INTO category (catname) VALUES ('Food');
 
 -- ##################################### PROJECT
 CREATE TABLE project (
   uid              varchar(45) NOT NULL,
-  pid              UNIQUE SERIAL NOT NULL,
+  pid              SERIAL UNIQUE NOT NULL,
 
   catname          varchar(16) NOT NULL,
   ptitle           varchar(45) NOT NULL,
@@ -60,7 +66,7 @@ CREATE TABLE creditcard (
   ccname         varchar(45) NOT NULL,
   ccnumber       varchar(16) NOT NULL,
   ccaddeddate    timestamp DEFAULT current_timestamp,
-  ccactive       boolean DEFAULT FALSE,
+  ccactive       boolean DEFAULT TRUE,
   PRIMARY KEY (uid, ccnumber),
   FOREIGN KEY (uid) REFERENCES users (uid)
 );
@@ -102,55 +108,68 @@ CREATE TABLE comment (
 
 
 CREATE TABLE pledge (
-  uid          varchar(45) NOT NULL,
-  pid          int NOT NULL,
-  ccnumber     varchar(16) NOT NULL,
-  plamount     int NULL CHECK(plamount > 0),
-  plrating     int NULL CHECK(plrating > 0 AND plrating <= 5),
-  pldate       timestamp DEFAULT current_timestamp,
-  plcharged    boolean DEFAULT FALSE,
-  plcancelled  boolean DEFAULT FALSE,
+  uid            varchar(45) NOT NULL,
+  pid            int NOT NULL,
+  ccnumber       varchar(16) NOT NULL,
+
+  plamount       int NULL CHECK(plamount > 0),
+  plrating       int NULL CHECK(plrating > 0 AND plrating <= 5),  
+  pldate         timestamp DEFAULT current_timestamp,
+  plcharged      boolean DEFAULT FALSE,
+  plchargeddate  timestamp NULL,
+  plcancelled    boolean DEFAULT FALSE,
+  
   PRIMARY KEY (uid, pid),
   FOREIGN KEY (uid) REFERENCES users (uid),
   FOREIGN KEY (pid) REFERENCES project (pid),
   FOREIGN KEY (uid, ccnumber) REFERENCES creditcard (uid, ccnumber)
 );
 
-CREATE OR REPLACE FUNCTION update_fund() RETURNS trigger AS
+
+CREATE OR REPLACE FUNCTION update_project_on_pledge_insert() RETURNS trigger AS
 $table$
 BEGIN
+  IF (NEW.plcancelled = 'TRUE')
+  THEN
+    RETURN NEW;
+  END IF;
+
+  -- Select current amount pledged to the project
 	WITH p2 as (SELECT project.pcurrentamount
-				  FROM project
-			     WHERE project.pid = NEW.pid)
+				        FROM project
+			         WHERE project.pid = NEW.pid)
 	
 	UPDATE project
-	SET pcurrentamount = (SELECT pcurrentamount FROM p2) + NEW.plamount
-	WHERE project.pid = NEW.pid;
+	  SET pcurrentamount = (SELECT pcurrentamount FROM p2) + NEW.plamount
+	  WHERE project.pid = NEW.pid;
 	
-	IF( (SELECT pcurrentamount FROM project WHERE pid = NEW.pid) >= 
-		(SELECT pmaxamount FROM project WHERE pid = NEW.pid) )
+	IF ( (SELECT pcurrentamount FROM project WHERE pid = NEW.pid) >= 
+		   (SELECT pmaxamount FROM project WHERE pid = NEW.pid) )
 	THEN
+    -- Charge all pledges
 		UPDATE pledge 
-			SET plcharged = 'TRUE' WHERE pid = NEW.pid;
-		UPDATE project
-			SET psuccess = 'TRUE', pactive = 'FALSE' WHERE pid = NEW.pid;
-		UPDATE project
-			SET pclosedate = current_timestamp WHERE pid = NEW.pid;
+			SET plcharged = 'TRUE',
+          plchargeddate = current_timestamp
+      WHERE pid = NEW.pid;
+		
+    -- Project successfully funded
+    UPDATE project
+			SET psuccess = 'TRUE', 
+          pactive = 'FALSE',
+          pclosedate = current_timestamp
+      WHERE pid = NEW.pid;
 	END IF;
 	
 	RETURN NEW;
 END;
 $table$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_fund AFTER INSERT ON pledge 
-FOR EACH ROW EXECUTE PROCEDURE update_fund(); 
-
 
 -- Prevent pledges to inactive projects
-CREATE OR REPLACE FUNCTION insert_pledge() RETURNS trigger AS
+CREATE OR REPLACE FUNCTION check_before_pledge_insert() RETURNS trigger AS
 $table$
 BEGIN
-	IF ( (SELECT pactive FROM project WHERE pid = NEW.pid) = FALSE)
+  IF ( (SELECT pactive FROM project WHERE pid = NEW.pid) = 'FALSE')
 	THEN
 		RETURN NULL;
 	END IF;
@@ -159,10 +178,25 @@ BEGIN
 END;
 $table$ LANGUAGE plpgsql;
 
-CREATE TRIGGER insert_pledge BEFORE INSERT ON pledge 
-FOR EACH ROW EXECUTE PROCEDURE insert_pledge(); 
+
+DROP TRIGGER IF EXISTS insert_pledge ON pledge;
+DROP TRIGGER IF EXISTS update_fund ON pledge;
+
+DROP TRIGGER IF EXISTS update_project_on_pledge_insert ON pledge;
+CREATE TRIGGER update_project_on_pledge_insert AFTER INSERT ON pledge 
+FOR EACH ROW EXECUTE PROCEDURE update_project_on_pledge_insert(); 
+
+DROP TRIGGER IF EXISTS check_before_pledge_insert ON pledge;
+CREATE TRIGGER check_before_pledge_insert BEFORE INSERT ON pledge 
+FOR EACH ROW EXECUTE PROCEDURE check_before_pledge_insert();
+
+-- DROP TRIGGER IF EXISTS check_before_pledge_update ON pl;
+-- CREATE TRIGGER check_before_pledge_update BEFORE UPDATE ON pledge 
+-- FOR EACH ROW EXECUTE PROCEDURE check_before_pledge_insert(); 
 
 
+
+-- UPDATES
 CREATE TABLE update (
   uid             varchar(45) NOT NULL,
   pid             int NOT NULL,

@@ -16,8 +16,11 @@
   };
 
   function pg_to_php_date($pg_date) {
+    $fomat = arguments[1];
     date_default_timezone_set("UTC");
-    return date('M/d/Y', strtotime($pg_date));
+    if (empty($format))
+      $format = 'M d, Y';
+    return date($format, strtotime($pg_date));
   }
 
 // USER
@@ -44,7 +47,7 @@
 
   function get_upasswordhash($uid) {
     $db_connection = get_db_connection();
-    $result = @pg_query($db_connection, 
+    $result = pg_query($db_connection, 
       "SELECT upasswordhash
          FROM users
         WHERE uid='$uid';"
@@ -52,6 +55,7 @@
 
     return pg_fetch_array($result);
   }
+
 // PROJECT
   function get_projects($category){
     $db_connection = get_db_connection();
@@ -90,7 +94,7 @@
   function insert_and_return_project($uid, $title, $description, $category, 
                           $filepath, $days, $min, $max) {
     $db_connection = get_db_connection();
-    $result = @pg_query($db_connection, 
+    $result = pg_query($db_connection, 
       "INSERT INTO project (uid, catname, ptitle, pdescription, pimage, pfinishdate, pminamount, pmaxamount)
           VALUES ('$uid', '$category', '$title', '$description', '$filepath', current_timestamp + interval '$days day', '$min', '$max')
           RETURNING pid;"
@@ -115,7 +119,7 @@
 
   function get_project($pid) {
     $db_connection = get_db_connection();
-    $result = @pg_query($db_connection, 
+    $result = pg_query($db_connection, 
       "SELECT * 
          FROM project
         WHERE pid='$pid';"
@@ -130,7 +134,7 @@
 
   function get_project_info($pid) {
     $db_connection = get_db_connection();
-    $result = @pg_query($db_connection, 
+    $result = pg_query($db_connection, 
       "SELECT * 
          FROM project, users
         WHERE pid=$pid AND
@@ -147,12 +151,76 @@
 // PLEDGE
   function get_pledges($uid){
     $db_connection = get_db_connection();
-    $result = pg_query
-    ($db_connection, "SELECT * FROM pledge natural join project WHERE uid = '$uid';");
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM pledge natural join project 
+        WHERE uid = '$uid';");
     
     return $result;
   }
 
+  function get_pledge($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM pledge
+        WHERE pid=$pid AND
+              uid='$uid';"
+    );
+    pg_close();
+    return pg_fetch_array($result);
+  };
+
+  function pledge_exists($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM pledge
+        WHERE pid=$pid AND
+              uid='$uid';"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  };
+
+  function insert_pledge($uid, $pid, $ccnumber, $amount) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO pledge (uid, pid, ccnumber, plamount)
+        VALUES ('$uid', $pid, '$ccnumber', $amount);"
+    );
+    pg_close();
+
+    return is_resource($result);
+  }
+
+  function update_pledge_to_active($uid, $pid, $ccnumber, $amount) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE pledge
+          SET ccnumber = '$ccnumber',
+              plamount = $amount,
+              pldate = current_timestamp,
+              plcancelled = FALSE
+        WHERE uid='$uid' AND
+              pid=$pid;"
+    );
+    pg_close();
+    return is_resource($result);
+  }
+
+  function update_pledge_to_not_active($uid, $pid, $ccnumber, $amount) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE pledge
+          SET pldate = current_timestamp,
+              plcancelled = TRUE
+        WHERE uid='$uid' AND
+              pid='$pid';"
+    );
+    pg_close();
+    return is_resource($result);
+  }
 
 // COMMENT
   function get_comments($pid) {
@@ -214,10 +282,10 @@
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
       "UPDATE likes
-       SET likedate = current_timestamp,
-           likeactive = TRUE
-       WHERE uid='$uid' AND
-             pid='$pid';"
+          SET likedate = current_timestamp,
+              likeactive = TRUE
+        WHERE uid='$uid' AND
+              pid='$pid';"
     );
     pg_close();
     return is_resource($result);
@@ -227,14 +295,50 @@
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
       "UPDATE likes
-       SET likedate = current_timestamp,
-           likeactive = FALSE
-       WHERE uid='$uid' AND 
-             pid='$pid';"
+          SET likedate = current_timestamp,
+              likeactive = FALSE
+        WHERE uid='$uid' AND 
+              pid='$pid';"
     );
     pg_close();
     return is_resource($result);
   }
+
+// CREDITCARD
+  function get_creditcard($ccid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT *
+         FROM creditcard
+        WHERE ccid='$ccid' AND
+              ccactive = TRUE
+        ORDER BY ccid DESC;"
+    );
+    pg_close();
+
+    if (!is_resource($result)) {
+      return null;
+    }
+    return pg_fetch_array($result);
+  }
+
+  function get_creditcards($uid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT *
+         FROM creditcard
+        WHERE uid='$uid' AND
+              ccactive = TRUE
+        ORDER BY ccid DESC;"
+    );
+    pg_close();
+
+    if (!is_resource($result)) {
+      return null;
+    }
+    return pg_fetch_all($result);
+  }
+
 
 // PRODUCT
   function product_exists_and_available($pname) {

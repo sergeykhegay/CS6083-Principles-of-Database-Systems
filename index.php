@@ -104,7 +104,9 @@
         ?>
             <div class="col-sm-6 col-md-4 col-lg-4 mt-4" style="padding-top:30px">
               <div class="card">
-                <img class="card-img-top" src="<?php echo "$image" ?>">
+                <div class="card-img-div-top" style="background: url('<?=$image?>') no-repeat center center;
+                                                     background-size: cover">
+                </div>
                 <div class="card-block">
                   <figure class="profile">
                     <img src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" class="profile-avatar" alt="">

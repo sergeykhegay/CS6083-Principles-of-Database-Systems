@@ -30,6 +30,9 @@
           $minamount = $project["pminamount"];
           $maxamount = $project["pmaxamount"];
           $currentamount = $project["pcurrentamount"];
+
+          $creditcards = get_creditcards($uid);
+          // $liked =  TODO
         }
         // messages
         // if (!$user_logged_in) {
@@ -40,11 +43,12 @@
 
       <!-- Image jumbotron -->
       <div class="jumbotron" style="background: url('<?php echo "$image"; ?>') no-repeat center center;
+                                    background-size: cover;
                                     vertical-align: text-bottom;
                                     text-align: center; 
                                     font-weight: bold;
                                     color: white;
-                                    height: 250px">
+                                    height: 320px">
       </div>
       <link rel="stylesheet" type="text/css" href="grid_layout.css">
       
@@ -83,7 +87,7 @@
             <!--/.Card content-->
           </div>
 
-          <div class="card" style="margin-bottom:20px">
+          <div class="card" style="margin-bottom:10px">
             <div class="card-block" >
                 <h8 class="card-title">Update</h8><small> on DATE HERE</small>
             </div>
@@ -96,13 +100,10 @@
             </div>
             <!--/.Card image-->
 
-            <!--Card content-->
-
             <div class="card-block">
                 <!--Text-->
                 <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
             </div>
-            <!--/.Card content-->
           </div>
 
         </div>
@@ -128,43 +129,55 @@
                 <div class="row">
                   <div class="form-group col-md-6">
                     <label>Minumim Required</label>
-                    <div class="input-group">
                       <input type="text" class="form-control text-center" value="$<?=$minamount?>.00" style="background:transparent;border:0px"readonly>
-                    </div>
                   </div>
                   <div class="form-group col-md-6">
                     <label>Maximum Required</label>
-                    <div class="input-group">
-                      <input type="text" class="form-control text-center" value="$<?=$maxamount?>.00" style="background:transparent;border:0px"readonly>
-                    </div>
+                    <input type="text" class="form-control text-center" value="$<?=$maxamount?>.00" style="background:transparent;border:0px"readonly>
                   </div>
                 </div>
                 <div class="row">
                   <div class="form-group col-md-6  has-success">
                     <label>Pledged</label>
-                    <div class="input-group">
-                      <input type="text" class="form-control text-center" value="$<?=$currentamount?>.00" style="background:transparent;" readonly>
-                    </div>
+                    <input type="text" class="form-control text-center" value="$<?=$currentamount?>.00" style="background:transparent;" readonly>                    
                   </div>
                   <div class="form-group col-md-6">
                   </div>
                 </div>
               </form>
               <hr />
-              <div class="row">
-                <!-- pledge form -->
-                <form class="form-inline text-center">
-                  <div class="form-group">
-                    <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
-                    <div class="input-group">
-                      <div class="input-group-addon">$</div>
-                      <input type="text" class="form-control" id="pledgeInput" placeholder="Amount">
-                      <div class="input-group-addon">.00</div>
-                    </div>
+              
+              <!-- pledge form -->
+              <form>
+                <div id="credicardGroup" class="form-group">
+                  <label class="control-label" for="exampleInputAmount">Credit Card</label>
+                  <input type="hidden" name="uid" value=<?=$uid?>>
+                  <input type="hidden" name="pid" value=<?=$pid?>>
+                  <select id="ccidInput" name="ccidInput" class="form-control">
+                    <?php 
+                      if (empty($creditcards)) {
+                        echo "<option class='form-control text-danger'>You have not added any credit cards yet</option>";
+                      } else {
+                        foreach ($creditcards as $cc) {
+                          $ccid_tmp = $cc['ccid'];
+                          $ccname_tmp = $cc['ccname'];
+                          echo "<option class='form-control' value=$ccid_tmp>$ccname_tmp</option>";
+                        }                        
+                      }
+                    ?>
+                  </select>
+                  <p class="help-block">Add a new credit card <a href="">here</a></p>
+                </div>
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-addon">$</div>
+                    <input id="pledgeInput" type="text" class="form-control" placeholder="Amount">
+                    <div class="input-group-addon">.00</div>
                   </div>
-                  <button id="pledgeButton" type="submit" class="btn btn-success">Pledge!</button>
-                </form>
-              </div>
+                  <p id="pledgeHelp" class="help-block"></p>                    
+                </div>
+                <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
+              </form>
             </div>
           </div>
 
@@ -182,7 +195,7 @@
                   <textarea rows="4" class="form-control" id="textareaInput" 
                          name="comtext" placeholder="Share your thoughts..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Share</button>
+                <button type="submit" class="btn btn-primary pull-right" style="margin-bottom:15px">Share</button>
               </form>
             </div>
           </div>
@@ -192,7 +205,7 @@
         
             if (!empty($comments)) {
               foreach ($comments as $comment) { ?>
-                <div class="card card-outline-primary text-xs-center" style="margin-bottom:20px">
+                <div class="card card-outline-primary text-xs-center" style="margin-bottom:10px">
                   <div class="card-block" id="<?=$comment["cid"]?>">
                     <div class="card-blockquote">
                       <p><?=$comment["comtext"]?></p>
@@ -281,23 +294,28 @@
 
       // Pledge
       $('#pledgeButton').on('click', function() {
-        location.href = location.href;
         var data = new FormData();
         data.append('pid', $('#pidInput').val());
         data.append('uid', $('#uidInput').val());
-      
+        data.append('ccid', $('#ccidInput').val());
+        data.append('amount', $('#pledgeInput').val());
+        
         $.ajax({
           type: 'POST',               
           processData: false, // important
           contentType: false, // important
           data: data,
-          url: "./like_unlike_handler.php",
-          dataType : 'text',
+          url: "./pledge_handler.php",
+          dataType : 'json',
           success: function(data, textStatus, jqXHR) {
             console.log(data);
             if (typeof data.error === 'undefined') {
-              $('#likeButton').removeClass("hidden");
-              $('#unlikeButton').addClass("hidden");
+              if (data["success"]) {
+                $("#pledgeHelp").html(data["message"]);
+                window.location.href = window.location.href;
+              } else {
+                $("#pledgeHelp").html("<span style='color:red'>" + data["message"] + "</span>");
+              }
             } else {
               console.log('ERRORS success: ' + data.error);
             }
