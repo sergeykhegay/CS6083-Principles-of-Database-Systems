@@ -64,11 +64,12 @@
     $db_connection = get_db_connection();
     if($category == null){
       $result = pg_query
-      ($db_connection, "SELECT * FROM project");
+      ($db_connection, "SELECT * FROM project WHERE pactive = 'TRUE';");
     }
     else{
       $result = pg_query
-      ($db_connection, "SELECT * FROM project WHERE Lower(catname) = '$category';");
+      ($db_connection, "SELECT * FROM project 
+        WHERE pactive = 'TRUE' AND Lower(catname) = '$category';");
     }
     pg_close();
 
@@ -80,14 +81,15 @@
     $result = null;
 
     if (empty($keyword)) {
-      $result = pg_query($db_connection, "SELECT * FROM project;");
+      $result = pg_query($db_connection, "SELECT * FROM project WHERE pactive = 'TRUE';");
     } else {
       $result = pg_query($db_connection, 
         "SELECT * 
          FROM project 
          WHERE pdescription ILIKE '%$keyword%' OR
                ptitle ILIKE '%$keyword%' OR
-               catname ILIKE '%$keyword%';");
+               catname ILIKE '%$keyword%' AND pactive = 'TRUE'
+               ;");
     }
     pg_close();
     // if (!is_resource($result)) {
@@ -137,6 +139,21 @@
     return pg_fetch_array($result);
   }
 
+  function get_user_project($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM project
+        WHERE uid='$uid' AND pcancelled = 'FALSE';"
+    );
+    pg_close();
+
+    if (!isset($result)) {
+      return;
+    }
+    return $result;
+  }
+
   function get_project_info($pid) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
@@ -151,6 +168,16 @@
       return;
     }
     return pg_fetch_array($result);
+  }
+
+  function cancel_project($pid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE project  
+         SET pcancelled = 'TRUE' pactive = 'FALSE'
+        WHERE pid=$pid ;"
+    );
+    pg_close();
   }
 
 // PLEDGE
