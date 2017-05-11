@@ -206,7 +206,6 @@
 
         var data = new FormData();
         data.append('filename', $('#inputFile')[0].files[0]);
-        console.log($('#inputFile')[0].files);
         $.ajax({
           type: 'POST',               
           processData: false, // important

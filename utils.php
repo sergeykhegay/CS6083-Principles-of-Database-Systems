@@ -26,13 +26,14 @@
 // USER
   function user_exists($uid) {
     $db_connection = get_db_connection();
-      $result = pg_query($db_connection, 
-        "SELECT * 
-           FROM users
-          WHERE uid='$uid';"
-      );
-      
-      return pg_num_rows($result) == 1;
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM users
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    return pg_num_rows($result) == 1;
   };
 
   function insert_user($uid, $password_hash) {
@@ -41,7 +42,8 @@
       "INSERT INTO users (uid, upasswordhash) 
           VALUES ('$uid', '$password_hash');"
     );
-    
+    pg_close();
+
     return is_resource($result); // true or false
   };
 
@@ -52,6 +54,7 @@
          FROM users
         WHERE uid='$uid';"
     );
+    pg_close();
 
     return pg_fetch_array($result);
   }
@@ -67,6 +70,8 @@
       $result = pg_query
       ($db_connection, "SELECT * FROM project WHERE Lower(catname) = '$category';");
     }
+    pg_close();
+
     return $result;
   }
 
@@ -84,7 +89,7 @@
                ptitle ILIKE '%$keyword%' OR
                catname ILIKE '%$keyword%';");
     }
-    
+    pg_close();
     // if (!is_resource($result)) {
     //   return null;
     // }
@@ -154,7 +159,8 @@
     $result = pg_query($db_connection, 
       "SELECT * 
          FROM pledge natural join creditcard
-        WHERE uid = '$uid' AND plcancelled = 'FALSE';");
+        WHERE uid = '$uid' AND plcancelled = 'FALSE';"
+    );
     
     return $result;
   }
@@ -199,6 +205,19 @@
          FROM pledge
         WHERE pid=$pid AND
               uid='$uid';"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  };
+
+  function pledge_exists_active($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM pledge
+        WHERE pid=$pid AND
+              uid='$uid' AND
+              plcancelled=FALSE;"
     );
     pg_close();
     return pg_num_rows($result) == 1;
@@ -288,6 +307,19 @@
     return pg_num_rows($result) == 1;
   }
 
+  function like_exists_active($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM likes
+        WHERE pid='$pid' AND 
+              uid='$uid' AND
+              likeactive=TRUE;"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  }
+
   function insert_like($uid, $pid) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
@@ -359,6 +391,41 @@
     }
     return pg_fetch_all($result);
   }
+
+
+
+// UPDATE
+  function get_updates($pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT *
+         FROM update
+        WHERE pid='$pid'
+        ORDER BY upddate;"
+    );
+    pg_close();
+
+    if (!is_resource($result)) {
+      return null;
+    }
+    return pg_fetch_all($result);
+  }
+
+
+  function  insert_update($pid, $title, $description, $filepath, $mediavideo) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO update (pid, updtitle, upddescription, updmedia, updmediavideo)
+          VALUES ('$pid', '$title', '$description', '$filepath', '$mediavideo')"
+    );
+    
+    pg_close();
+
+    return is_resource($result);
+  };
+
+
+
 
 
 // PRODUCT

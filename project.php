@@ -1,5 +1,46 @@
 <?php require_once "utils.php"; ?>
 <?php session_start(); ?>
+<?php
+  // data
+  $uid = $_SESSION["uid"];
+  $pid = test_input($_GET["pid"]);
+  $project = get_project_info($pid);
+
+  // flags
+  $user_logged_in = isset($uid) && !empty($uid);
+  $project_exists = isset($project) && !empty($project);
+
+  if ($project_exists) {
+    $ownerid = $project["uid"];
+
+    $image = $project["pimage"];
+    $title = $project["ptitle"];
+    $description = $project["pdescription"];
+    $category = $project["catname"];
+
+    $startdate = pg_to_php_date($project["pstartdate"]);
+    $finishdate = pg_to_php_date($project["pfinishdate"]);
+    $minamount = $project["pminamount"];
+    $maxamount = $project["pmaxamount"];
+    $currentamount = $project["pcurrentamount"];
+
+    $project_success = $project["psuccess"] === "t";
+    $project_active = $project["pactive"] === "t";
+    $project_cancelled = $project["pcancelled"] === "t";
+
+    $project_closedate = pg_to_php_date($project["pclosedate"]);
+
+
+    $creditcards = get_creditcards($uid);
+    $updates = get_updates($pid);
+
+    $liked = like_exists_active($uid, $pid);
+    $pledged = pledge_exists_active($uid, $pid);
+  } else {
+    header("Location: ./404.php");
+    die();
+  }
+?>
 <!DOCTYPE html>
 <html lang="en">
   <?php $_title = "Project @ Cabbage"; include "inc_head.inc";?>
@@ -7,40 +48,6 @@
     <div class="container">
       <?php include "inc_navbar.inc"; ?>
       
-      <?php
-        // data
-        $uid = $_SESSION["uid"];
-        $pid = test_input($_GET["pid"]);
-        $project = get_project_info($pid);
-
-        // flags
-        $user_logged_in = isset($_SESSION["uid"]);
-        $project_exists = isset($project);
-
-        if ($project_exists) {
-          $ownerid = $project["uid"];
-
-          $image = $project["pimage"];
-          $title = $project["ptitle"];
-          $description = $project["pdescription"];
-          $category = $project["catname"];
-
-          $startdate = pg_to_php_date($project["pstartdate"]);
-          $finishdate = pg_to_php_date($project["pfinishdate"]);
-          $minamount = $project["pminamount"];
-          $maxamount = $project["pmaxamount"];
-          $currentamount = $project["pcurrentamount"];
-
-          $creditcards = get_creditcards($uid);
-          // $liked =  TODO
-        }
-        // messages
-        // if (!$user_logged_in) {
-        //   echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
-        // }
-
-      ?>
-
       <!-- Image jumbotron -->
       <div class="jumbotron" style="background: url('<?php echo "$image"; ?>') no-repeat center center;
                                     background-size: cover;
@@ -51,11 +58,21 @@
                                     height: 320px">
       </div>
       <link rel="stylesheet" type="text/css" href="grid_layout.css">
-      
+
       <!-- List project -->
       <div class="page-header">
         <div class="row">
           <div class="col-md-1">
+            <?php if ($project_cancelled) { ?>
+              <button class="btn btn-danger" 
+                    type="submit" style="align:bottom;display:block;width:70px">Sad</button>
+            <?php } elseif ($project_success) { ?>
+              <button class="btn btn-success" 
+                    type="submit" style="align:bottom;display:block;width:70px">Funded</button>
+            <?php } else { ?>
+              <button class="btn btn-danger" 
+                    type="submit" style="align:bottom;display:block;width:70px">Fail</button>
+            <?php } ?>
           </div>
           <div class="col-md-10">
             <h1 class="text-center"><?php echo "$title"; ?></h1>
@@ -64,8 +81,14 @@
           <div class="col-md-1 pull-right" style="vertical-align: text-bottom;">
             <input id="pidInput" type="hidden" value="<?=$pid?>">
             <input id="uidInput" type="hidden" value="<?=$uid?>">
-            <button id="likeButton" class="btn btn-primary" type="submit" style="align: bottom;display:block;width:70px">Like</button>
-            <button id="unlikeButton" class="btn btn-danger hidden" type="submit" style="align: bottom;display:block;width:70px">Unlike</button>
+            <?php if ($user_logged_in) { ?>
+              <button id="likeButton" class="btn btn-primary <?php if ($liked) echo 'hidden' ?>" 
+                      type="submit" style="align: bottom;display:block;width:70px">Like</button>
+              <button id="unlikeButton" class="btn btn-danger <?php if (!$liked) echo 'hidden' ?>" 
+                      type="submit" style="align: bottom;display:block;width:70px">Unlike</button>
+            <?php } else { ?>
+              <a class="btn btn-primary" href="./user_login.php" type="button" style="align:bottom;display:block;width:70px">Login</a>
+            <?php } ?>
           </div>
         </div> 
       </div>
@@ -87,27 +110,57 @@
             <!--/.Card content-->
           </div>
 
-          <div class="card" style="margin-bottom:10px">
-            <div class="card-block" >
-                <h8 class="card-title">Update</h8><small> on DATE HERE</small>
-            </div>
-            <!--Card image or video-->
-            <div class="view overlay hm-white-slight">
-                <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20%287%29.jpg" class="img-fluid" alt="">
-                <a href="#">
-                    <div class="mask waves-effect waves-light"></div>
-                </a>
-            </div>
-            <!--/.Card image-->
 
-            <div class="card-block">
-                <!--Text-->
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            </div>
-          </div>
+          <?php 
+            if (!empty($updates)) {
+              foreach ($updates as $update) { ?>
+                <div class="card" style="margin-bottom:10px">
+                  <div class="card-block" >
+                      <h8 class="card-title">Update</h8><small> on <?=pg_to_php_date($update["upddate"])?></small>
+                  </div>
+                  
+                  <?php if ($update["updmediavideo"] === 't') { ?>
+                    <div class="view overlay hm-white-slight" style="text-align:center">
+                        <video  style="text-align:center" controls>
+                          <source src='<?=$update["updmedia"]?>' type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                        <a href="#">
+                            <div class="mask waves-effect waves-light"></div>
+                        </a>
+                    </div>
+                  <?php } else { ?>
+                    <div class="view overlay hm-white-slight" style="text-align:center">
+                        <img src='<?=$update["updmedia"]?>' class="img-fluid" alt="">
+                        <a href="#">
+                            <div class="mask waves-effect waves-light"></div>
+                        </a>
+                    </div>
+                  <?php } ?>
+
+                  <!--/.Card image-->
+
+                  <div class="card-block">
+                      <!--Text-->
+                      <h4><?=$update["updtitle"]?></h4>
+                      <p class="card-text"><?=$update["upddescription"]?></p>
+                  </div>
+                </div><?php 
+              }
+            } else { ?>
+              <div class="alert alert-info text-center">
+                <strong>Info!</strong> No updates yet.
+              </div>
+            <?php } ?>
+
+
+
+
 
         </div>
         <div class="col-md-6">
+
+
 
           <!-- Pledge -->
           <div class="card" style="margin-bottom:20px">
@@ -148,36 +201,64 @@
               <hr />
               
               <!-- pledge form -->
-              <form>
-                <div id="credicardGroup" class="form-group">
-                  <label class="control-label" for="exampleInputAmount">Credit Card</label>
-                  <input type="hidden" name="uid" value=<?=$uid?>>
-                  <input type="hidden" name="pid" value=<?=$pid?>>
-                  <select id="ccidInput" name="ccidInput" class="form-control">
-                    <?php 
-                      if (empty($creditcards)) {
-                        echo "<option class='form-control text-danger'>You have not added any credit cards yet</option>";
-                      } else {
-                        foreach ($creditcards as $cc) {
-                          $ccid_tmp = $cc['ccid'];
-                          $ccname_tmp = $cc['ccname'];
-                          echo "<option class='form-control' value=$ccid_tmp>$ccname_tmp</option>";
-                        }                        
-                      }
-                    ?>
-                  </select>
-                  <p class="help-block">Add a new credit card <a href="">here</a></p>
-                </div>
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-addon">$</div>
-                    <input id="pledgeInput" type="text" class="form-control" placeholder="Amount">
-                    <div class="input-group-addon">.00</div>
+
+              <?php if (!$project_active) { ?>
+
+                <?php 
+                  if ($project_cancelled) {
+                    echo "<div class='alert alert-danger text-center'>
+                            <strong>Sad!</strong> The owner cancelled the project on $project_closedate. All pledges have been released
+                          </div>";
+                  } elseif ($project_success) {
+                    echo "<div class='alert alert-success text-center'>
+                           <strong>Hoooray!</strong> Successfully funded on $project_closedate! If you were one of the backers you can rate it now at the dashboard.
+                         </div>";
+                  } elseif (!$project_success) {
+                    echo "<div class='alert alert-danger text-center'>
+                            <strong>Sad!</strong> The project did not get required funding in time.
+                          </div>";
+                  }
+                ?>
+              <?php } elseif ($user_logged_in) { ?>
+                <form>
+                  <div id="credicardGroup" class="form-group">
+                    <label class="control-label" for="exampleInputAmount">Credit Card</label>
+                    <input type="hidden" name="uid" value=<?=$uid?>>
+                    <input type="hidden" name="pid" value=<?=$pid?>>
+                    <select id="ccidInput" name="ccidInput" class="form-control">
+                      <?php 
+                        if (empty($creditcards)) {
+                          echo "<option class='form-control text-danger'>You have not added any credit cards yet</option>";
+                        } else {
+                          foreach ($creditcards as $cc) {
+                            $ccid_tmp = $cc['ccid'];
+                            $ccname_tmp = $cc['ccname'];
+                            echo "<option class='form-control' value=$ccid_tmp>$ccname_tmp</option>";
+                          }                        
+                        }
+                      ?>
+                    </select>
+                    <p class="help-block">Add a new credit card <a href="">here</a></p>
                   </div>
-                  <p id="pledgeHelp" class="help-block"></p>                    
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-addon">$</div>
+                      <input id="pledgeInput" type="text" class="form-control" placeholder="Amount">
+                      <div class="input-group-addon">.00</div>
+                    </div>
+                    <p id="pledgeHelp" class="help-block"></p>                    
+                  </div>
+                  <?php if ($pledged) { ?>
+                    <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
+                  <?php } else { ?>
+                    <button type="submit" class="btn btn-error pull-right" style="margin-bottom:15px">You cannot pledge twise</button> 
+                  <?php } ?>
+                </form>
+              <?php } else { ?>
+                <div class="alert alert-info text-center">
+                  <strong>Info!</strong> You need to <a href="./user_login.php">login</a> to pledge.
                 </div>
-                <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
-              </form>
+              <?php } ?>
             </div>
           </div>
 
@@ -187,16 +268,24 @@
               <h4 class="card-title">Comment</h4>
             </div>
             <div class="card-block">
-              <!-- Comment form -->
-              <form class="form" action="./comment_add_handler.php" method="POST">
-                <div class="form-group">
-                  <input type="hidden" name="uid" value=<?=$uid?>>
-                  <input type="hidden" name="pid" value=<?=$pid?>>
-                  <textarea rows="4" class="form-control" id="textareaInput" 
-                         name="comtext" placeholder="Share your thoughts..."></textarea>
+
+              <?php if ($user_logged_in) { ?>
+                <!-- Comment form -->
+                <form class="form" action="./comment_add_handler.php" method="POST">
+                  <div class="form-group">
+                    <input type="hidden" name="uid" value=<?=$uid?>>
+                    <input type="hidden" name="pid" value=<?=$pid?>>
+                    <textarea rows="4" class="form-control" id="textareaInput" 
+                           name="comtext" placeholder="Share your thoughts..."></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary pull-right" style="margin-bottom:15px">Share</button>
+                </form>
+              <?php } else { ?>
+                <div class="alert alert-info text-center">
+                  <strong>Info!</strong> You need to <a href="./user_login.php">login</a> to share comments.
                 </div>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-bottom:15px">Share</button>
-              </form>
+              <?php } ?>
+
             </div>
           </div>
 
