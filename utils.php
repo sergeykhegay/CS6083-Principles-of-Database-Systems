@@ -153,8 +153,8 @@
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
       "SELECT * 
-         FROM pledge natural join project 
-        WHERE uid = '$uid';");
+         FROM pledge natural join creditcard
+        WHERE uid = '$uid' AND plcancelled = 'FALSE';");
     
     return $result;
   }
@@ -170,6 +170,27 @@
     pg_close();
     return pg_fetch_array($result);
   };
+
+  function cancel_pledge($pid, $uid){
+    $db_connection = get_db_connection();
+    pg_query($db_connection, 
+      "UPDATE pledge 
+          SET plcancelled = 'TRUE'
+        WHERE pid='$pid' AND uid='$uid'; "
+    );
+    $amount = pg_query($db_connection,
+      "SELECT plamount
+          FROM pledge
+        WHERE pid='$pid' AND uid='$uid';"
+    );
+    $amount = pg_fetch_row($amount)[0];
+    pg_query($db_connection, 
+      "UPDATE project 
+          SET pcurrentamount = pcurrentamount - '$amount'
+        WHERE pid='$pid'pactive='TRUE'; "
+    );
+    pg_close();
+  }
 
   function pledge_exists($uid, $pid) {
     $db_connection = get_db_connection();

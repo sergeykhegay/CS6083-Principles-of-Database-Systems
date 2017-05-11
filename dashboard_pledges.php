@@ -1,5 +1,8 @@
 <?php require_once "utils.php"; ?>
-<?php session_start(); ?>
+<?php 
+  session_start(); 
+  require_once "require_login.php";
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,11 +39,17 @@
         </li>
       </ul>
 
-      <?php
-        $pledges = get_pledges($_SESSION["uid"]);
-        if ($pledge == null) {
 
+      <?php
+        $is_cancelled = isset($_GET["cancel"]);
+        if($is_cancelled) {
+          echo "<div class=\"alert alert-success\">
+                  <strong>Pledge cancelled successfully!</strong> 
+                </div>";
+          $pid=$_GET["pid"];
+          cancel_pledge($pid, $_SESSION["uid"]);
         }
+        $pledges = get_pledges($_SESSION["uid"]);
       ?>
 
       <table class="table">
@@ -48,42 +57,80 @@
         <tr>
           <th>Project</th>
           <th>Amount</th>
-          <th>Date</th>
+          <th>Payment Info</th>
           <th>Rating</th>
         </tr>
         <?php
           while ($row = pg_fetch_object($pledges)) {
-            if ($row->psuccess == 't') {
+            $project_info = get_project($row->pid);
+            $disable = "active";
+            if ($project_info["psuccess"] == 't') {
               $status = "Successful";
+              $disable = "disabled";
             }
-            else if ($row->pactive == 'f') {
+            else if ($project_info["pactive"] == 'f') {
               $status = "Failed";
+              $disable = "disabled";
             }
             else {
               $status = "Funding";
-            }?>
+            }
+            if($row->plcharged == 't'){
+              $charged = "Charged";
+            }
+            else{
+              $charged = "Uncharged";
+            }  
+        ?>
             <tr>
               <td class="col-sm-8 col-md-5">
                 <div class="media">
-                  <img class="pull-left" src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" style="width: 150px; height: 120px;"> </a>
+                  <img class="pull-left" src=<?=$project_info[pimage]?> style="width: 150px; height: 120px;"> </a>
                   <div class="media-body">
-                    <h4 class="media-heading"><a href="project/?pid=<?=$row->pid?>"><?=$row->ptitle?></a></h4>
+                    <h4 class="media-heading"><a href="./project.php?pid=<?=$row->pid?>"><?=$project_info["ptitle"]?></a></h4>
                     <h5 class="media-heading"> by <a href="#"><?=$row->uid?></a></h5>
                     <span>Status: </span><span class="text-success"><?=$status?></span>
-                    <a href="#"> <button class="btn btn-info btn-xs">details</button></a>
                   </div>
                 </div>
               </td>
               <td>$<?=$row->plamount?>.00</td>
-              <td><?=substr($row->pldate,0,-7)?></td>
-              <td></td>
+              <td>
+                <?=$row->ccname?> *<?=substr($row->ccnumber, -4)?> 
+                <br><?=substr($row->pldate,0, 19)?> </br>
+                <span>Status: </span><code><?=$charged?></code>
+              </td>
+              <td><button onclick="changePidTo(<?=$row->pid?>);" type="button" class="btn btn-primary btn-sm <?=$disable?>" 
+                <?php if($disable == 'active'){ echo " data-toggle=\"modal\" data-target=\"#myModal\"";}?> >Cancel Pledge</button>
+              </td>
             </tr>
             <?php
           }
         ?>
         </table>
-      
 
+      
+    <div id="myModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Cancel Pledge</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure to cancel pledge for project <?=$project_info["title"]?></p>
+          </div>
+          <div class="modal-footer">
+            <form id="cancelForm" method="post" action="./dashboard_pledges.php?cancel=true">
+              <input  type="submit" value = "Cancel Pledge" class="btn btn-default">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
 
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -91,7 +138,15 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
 
-  
+    <script type="text/javascript">
+      var changePidTo = null;
+
+      $(document).ready(function() {
+        changePidTo = function(pid) {
+          $("#cancelForm").attr("action", "./dashboard_pledges.php?cancel=true&pid=" + pid);
+        }
+      });
+    </script>
 
   </body>
 </html>

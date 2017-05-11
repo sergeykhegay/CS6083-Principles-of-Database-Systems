@@ -134,6 +134,11 @@ BEGIN
     RETURN NEW;
   END IF;
 
+  IF( (SELECT psuccess FROM project WHERE pid = NEW.pid) = 'TRUE')
+  THEN
+    RETURN NULL;
+  END IF;
+
   -- Select current amount pledged to the project
 	WITH p2 as (SELECT project.pcurrentamount
 				        FROM project
@@ -146,17 +151,18 @@ BEGIN
 	IF ( (SELECT pcurrentamount FROM project WHERE pid = NEW.pid) >= 
 		   (SELECT pmaxamount FROM project WHERE pid = NEW.pid) )
 	THEN
-    -- Charge all pledges
-		UPDATE pledge 
-			SET plcharged = 'TRUE',
-          plchargeddate = current_timestamp
-      WHERE pid = NEW.pid;
-		
+	
     -- Project successfully funded
     UPDATE project
 			SET psuccess = 'TRUE', 
           pactive = 'FALSE',
           pclosedate = current_timestamp
+      WHERE pid = NEW.pid;
+
+    -- Charge all pledges
+    UPDATE pledge 
+      SET plcharged = 'TRUE',
+          plchargeddate = current_timestamp
       WHERE pid = NEW.pid;
 	END IF;
 	
@@ -183,7 +189,7 @@ DROP TRIGGER IF EXISTS insert_pledge ON pledge;
 DROP TRIGGER IF EXISTS update_fund ON pledge;
 
 DROP TRIGGER IF EXISTS update_project_on_pledge_insert ON pledge;
-CREATE TRIGGER update_project_on_pledge_insert AFTER INSERT ON pledge 
+CREATE TRIGGER update_project_on_pledge_insert AFTER INSERT OR UPDATE ON pledge 
 FOR EACH ROW EXECUTE PROCEDURE update_project_on_pledge_insert(); 
 
 DROP TRIGGER IF EXISTS check_before_pledge_insert ON pledge;

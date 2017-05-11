@@ -306,7 +306,7 @@
           contentType: false, // important
           data: data,
           url: "./pledge_handler.php",
-          dataType : 'json',
+          dataType : 'text',
           success: function(data, textStatus, jqXHR) {
             console.log(data);
             if (typeof data.error === 'undefined') {

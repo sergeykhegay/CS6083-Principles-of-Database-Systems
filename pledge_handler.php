@@ -64,7 +64,7 @@
 
     if (empty($pledge)) {
       $res = insert_pledge($uid, $pid, $creditcard["ccnumber"], $amount);
-    } elseif ($pledge["plcancelled"] === true) {
+    } elseif ($pledge["plcancelled"] === 't') {
       $res = update_pledge_to_active($uid, $pid, $creditcard["ccnumber"], $amount);
     } else {
       $data = array('success' => false, 
