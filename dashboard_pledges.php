@@ -20,22 +20,31 @@
         }
       ?>
 
-      <a href="./dashboard.php"> Events </a>
-      <a href="./dashboard_projects.php"> Projects </a>
-      <a href="./dashboard_pledges.php"> Pledges </a>
-      <a href="./dashboard_profile.php"> Profile </a>
+      <!-- Tabs -->
+      <ul class="nav nav-tabs nav-justified">
+        <li role="presentation">
+          <a href="./dashboard.php"> Events </a>
+        </li>
+        <li role="presentation">
+          <a href="./dashboard_projects.php"> Projects </a>
+        </li>
+        <li role="presentation" class='active'>
+          <a href="./dashboard_pledges.php"> Pledges </a>
+        </li>
+        <li role="presentation">
+          <a href="./dashboard_profile.php"> Profile </a>
+        </li>
+      </ul>
 
       <?php
         $pledges = get_pledges($_SESSION["uid"]);
-        if($pledge == null){
+        if ($pledge == null) {
 
         }
       ?>
 
-      
-      <div class="container">
-        <table class="table">
-          <caption> </caption>
+      <table class="table">
+        <caption> </caption>
         <tr>
           <th>Project</th>
           <th>Amount</th>
@@ -43,41 +52,37 @@
           <th>Rating</th>
         </tr>
         <?php
-        while($row = pg_fetch_object($pledges)){
-            if($row->psuccess == 't'){
+          while ($row = pg_fetch_object($pledges)) {
+            if ($row->psuccess == 't') {
               $status = "Successful";
             }
-            else if($row->pactive == 'f'){
+            else if ($row->pactive == 'f') {
               $status = "Failed";
             }
-            else{
+            else {
               $status = "Funding";
-            }
-        ?>
-        <tr>
-        <td class="col-sm-8 col-md-5">
-                        <div class="media">
-                            <img class="pull-left" src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" style="width: 150px; height: 120px;"> </a>
-                            <div class="media-body">
-                                <h4 class="media-heading"><a href="project/?pid=<?=$row->pid?>"><?=$row->ptitle?></a></h4>
-                                <h5 class="media-heading"> by <a href="#"><?=$row->uid?></a></h5>
-                                <span>Status: </span><span class="text-success"><?=$status?></span>
-                                <a href="#"> <button class="btn btn-info btn-xs">details</button></a>
-                            </div>
-                        </div>
-
-       </td>
-        <td > $<?=$row->plamount?>.00 </td>
-        <td > <?=substr($row->pldate,0,-7)?> </td>
-        <td>
-          
-        </td>
-      </tr>
-        <?php
-        }
+            }?>
+            <tr>
+              <td class="col-sm-8 col-md-5">
+                <div class="media">
+                  <img class="pull-left" src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" style="width: 150px; height: 120px;"> </a>
+                  <div class="media-body">
+                    <h4 class="media-heading"><a href="project/?pid=<?=$row->pid?>"><?=$row->ptitle?></a></h4>
+                    <h5 class="media-heading"> by <a href="#"><?=$row->uid?></a></h5>
+                    <span>Status: </span><span class="text-success"><?=$status?></span>
+                    <a href="#"> <button class="btn btn-info btn-xs">details</button></a>
+                  </div>
+                </div>
+              </td>
+              <td>$<?=$row->plamount?>.00</td>
+              <td><?=substr($row->pldate,0,-7)?></td>
+              <td></td>
+            </tr>
+            <?php
+          }
         ?>
         </table>
-      </div>
+      
 
 
     </div>

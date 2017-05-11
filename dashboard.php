@@ -25,10 +25,22 @@
         }
       ?>
 
-      <a href="./dashboard.php"> Events </a>
-      <a href="./dashboard_projects.php"> Projects </a>
-      <a href="./dashboard_pledges.php"> Pledges </a>
-      <a href="./dashboard_profile.php"> Profile </a>
+      <!-- Tabs -->
+      <ul class="nav nav-tabs nav-justified">
+        <li role="presentation" class='active'>
+          <a href="./dashboard.php"> Events </a>
+        </li>
+        <li role="presentation">
+          <a href="./dashboard_projects.php"> Projects </a>
+        </li>
+        <li role="presentation">
+          <a href="./dashboard_pledges.php"> Pledges </a>
+        </li>
+        <li role="presentation">
+          <a href="./dashboard_profile.php"> Profile </a>
+        </li>
+      </ul>
+
 
       Display current events here
 

@@ -27,12 +27,7 @@ INSERT INTO users (uid, upassword, uname, uinterests)
 
 -- ##################################### CATEGORY
 
-INSERT INTO category (catname) VALUES ('Art');
-INSERT INTO category (catname) VALUES ('Comics');
-INSERT INTO category (catname) VALUES ('Crafts');
-INSERT INTO category (catname) VALUES ('Music');
-INSERT INTO category (catname) VALUES ('Theater');
-INSERT INTO category (catname) VALUES ('Food');
+
 
 
 -- ##################################### PROJECT
@@ -61,10 +56,10 @@ INSERT INTO project (pid, uid, catname, ptitle, pdescription)
 
 -- ##################################### CREDITCARD
 
-INSERT INTO creditcard(uid, ccnumber, ccactive) VALUES ('justine@justine.com', '12345678901122', TRUE);
-INSERT INTO creditcard(uid, ccnumber, ccactive) VALUES ('sergey@sergey.com', '00000222010233', TRUE);
-INSERT INTO creditcard(uid, ccnumber, ccactive) VALUES ('rovan@rovan.me', '12000322010213', TRUE);
-INSERT INTO creditcard(uid, ccnumber, ccactive) VALUES ('bob@gmail.com', '_bobcard_', TRUE);
+INSERT INTO creditcard(uid, ccname, ccnumber, ccactive) VALUES ('justine@justine.com', 'Chase', '12345678901122', TRUE);
+INSERT INTO creditcard(uid, ccname, ccnumber, ccactive) VALUES ('sergey@sergey.com', 'Capital One', '00000222010233', TRUE);
+INSERT INTO creditcard(uid, ccname, ccnumber, ccactive) VALUES ('rovan@rovan.me', 'Capital One', '12000322010213', TRUE);
+INSERT INTO creditcard(uid, ccname, ccnumber, ccactive) VALUES ('bob@gmail.com', 'Capital One', '_bobcard_', TRUE);
 
 
 -- ##################################### FOLLOWS
