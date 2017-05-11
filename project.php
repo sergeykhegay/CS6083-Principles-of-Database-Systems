@@ -1,5 +1,36 @@
 <?php require_once "utils.php"; ?>
 <?php session_start(); ?>
+<?php
+  // data
+  $uid = $_SESSION["uid"];
+  $pid = test_input($_GET["pid"]);
+  $project = get_project_info($pid);
+
+  // flags
+  $user_logged_in = isset($uid) && !empty($uid);
+  $project_exists = isset($project) && !empty($project);
+
+  if ($project_exists) {
+    $ownerid = $project["uid"];
+
+    $image = $project["pimage"];
+    $title = $project["ptitle"];
+    $description = $project["pdescription"];
+    $category = $project["catname"];
+
+    $startdate = pg_to_php_date($project["pstartdate"]);
+    $finishdate = pg_to_php_date($project["pfinishdate"]);
+    $minamount = $project["pminamount"];
+    $maxamount = $project["pmaxamount"];
+    $currentamount = $project["pcurrentamount"];
+
+    $creditcards = get_creditcards($uid);
+    $liked = like_exists_active($uid, $pid);
+  } else {
+    header("Location: ./404.php");
+    die();
+  }
+?>
 <!DOCTYPE html>
 <html lang="en">
   <?php $_title = "Project @ Cabbage"; include "inc_head.inc";?>
@@ -7,40 +38,6 @@
     <div class="container">
       <?php include "inc_navbar.inc"; ?>
       
-      <?php
-        // data
-        $uid = $_SESSION["uid"];
-        $pid = test_input($_GET["pid"]);
-        $project = get_project_info($pid);
-
-        // flags
-        $user_logged_in = isset($_SESSION["uid"]);
-        $project_exists = isset($project);
-
-        if ($project_exists) {
-          $ownerid = $project["uid"];
-
-          $image = $project["pimage"];
-          $title = $project["ptitle"];
-          $description = $project["pdescription"];
-          $category = $project["catname"];
-
-          $startdate = pg_to_php_date($project["pstartdate"]);
-          $finishdate = pg_to_php_date($project["pfinishdate"]);
-          $minamount = $project["pminamount"];
-          $maxamount = $project["pmaxamount"];
-          $currentamount = $project["pcurrentamount"];
-
-          $creditcards = get_creditcards($uid);
-          // $liked =  TODO
-        }
-        // messages
-        // if (!$user_logged_in) {
-        //   echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
-        // }
-
-      ?>
-
       <!-- Image jumbotron -->
       <div class="jumbotron" style="background: url('<?php echo "$image"; ?>') no-repeat center center;
                                     background-size: cover;
@@ -64,8 +61,14 @@
           <div class="col-md-1 pull-right" style="vertical-align: text-bottom;">
             <input id="pidInput" type="hidden" value="<?=$pid?>">
             <input id="uidInput" type="hidden" value="<?=$uid?>">
-            <button id="likeButton" class="btn btn-primary" type="submit" style="align: bottom;display:block;width:70px">Like</button>
-            <button id="unlikeButton" class="btn btn-danger hidden" type="submit" style="align: bottom;display:block;width:70px">Unlike</button>
+            <?php if ($user_logged_in) { ?>
+              <button id="likeButton" class="btn btn-primary <?php if ($liked) echo 'hidden' ?>" 
+                      type="submit" style="align: bottom;display:block;width:70px">Like</button>
+              <button id="unlikeButton" class="btn btn-danger <?php if (!$liked) echo 'hidden' ?>" 
+                      type="submit" style="align: bottom;display:block;width:70px">Unlike</button>
+            <?php } else { ?>
+              <a class="btn btn-primary" href="./user_login.php" type="button" style="align:bottom;display:block;width:70px">Login</a>
+            <?php } ?>
           </div>
         </div> 
       </div>
@@ -148,36 +151,42 @@
               <hr />
               
               <!-- pledge form -->
-              <form>
-                <div id="credicardGroup" class="form-group">
-                  <label class="control-label" for="exampleInputAmount">Credit Card</label>
-                  <input type="hidden" name="uid" value=<?=$uid?>>
-                  <input type="hidden" name="pid" value=<?=$pid?>>
-                  <select id="ccidInput" name="ccidInput" class="form-control">
-                    <?php 
-                      if (empty($creditcards)) {
-                        echo "<option class='form-control text-danger'>You have not added any credit cards yet</option>";
-                      } else {
-                        foreach ($creditcards as $cc) {
-                          $ccid_tmp = $cc['ccid'];
-                          $ccname_tmp = $cc['ccname'];
-                          echo "<option class='form-control' value=$ccid_tmp>$ccname_tmp</option>";
-                        }                        
-                      }
-                    ?>
-                  </select>
-                  <p class="help-block">Add a new credit card <a href="">here</a></p>
-                </div>
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-addon">$</div>
-                    <input id="pledgeInput" type="text" class="form-control" placeholder="Amount">
-                    <div class="input-group-addon">.00</div>
+              <?php if ($user_logged_in) { ?>
+                <form>
+                  <div id="credicardGroup" class="form-group">
+                    <label class="control-label" for="exampleInputAmount">Credit Card</label>
+                    <input type="hidden" name="uid" value=<?=$uid?>>
+                    <input type="hidden" name="pid" value=<?=$pid?>>
+                    <select id="ccidInput" name="ccidInput" class="form-control">
+                      <?php 
+                        if (empty($creditcards)) {
+                          echo "<option class='form-control text-danger'>You have not added any credit cards yet</option>";
+                        } else {
+                          foreach ($creditcards as $cc) {
+                            $ccid_tmp = $cc['ccid'];
+                            $ccname_tmp = $cc['ccname'];
+                            echo "<option class='form-control' value=$ccid_tmp>$ccname_tmp</option>";
+                          }                        
+                        }
+                      ?>
+                    </select>
+                    <p class="help-block">Add a new credit card <a href="">here</a></p>
                   </div>
-                  <p id="pledgeHelp" class="help-block"></p>                    
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-addon">$</div>
+                      <input id="pledgeInput" type="text" class="form-control" placeholder="Amount">
+                      <div class="input-group-addon">.00</div>
+                    </div>
+                    <p id="pledgeHelp" class="help-block"></p>                    
+                  </div>
+                  <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
+                </form>
+              <?php } else { ?>
+                <div class="alert alert-info text-center">
+                  <strong>Info!</strong> You need to <a href="./user_login.php">login</a> to pledge.
                 </div>
-                <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
-              </form>
+              <?php } ?>
             </div>
           </div>
 
@@ -187,16 +196,24 @@
               <h4 class="card-title">Comment</h4>
             </div>
             <div class="card-block">
-              <!-- Comment form -->
-              <form class="form" action="./comment_add_handler.php" method="POST">
-                <div class="form-group">
-                  <input type="hidden" name="uid" value=<?=$uid?>>
-                  <input type="hidden" name="pid" value=<?=$pid?>>
-                  <textarea rows="4" class="form-control" id="textareaInput" 
-                         name="comtext" placeholder="Share your thoughts..."></textarea>
+
+              <?php if ($user_logged_in) { ?>
+                <!-- Comment form -->
+                <form class="form" action="./comment_add_handler.php" method="POST">
+                  <div class="form-group">
+                    <input type="hidden" name="uid" value=<?=$uid?>>
+                    <input type="hidden" name="pid" value=<?=$pid?>>
+                    <textarea rows="4" class="form-control" id="textareaInput" 
+                           name="comtext" placeholder="Share your thoughts..."></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary pull-right" style="margin-bottom:15px">Share</button>
+                </form>
+              <?php } else { ?>
+                <div class="alert alert-info text-center">
+                  <strong>Info!</strong> You need to <a href="./user_login.php">login</a> to share comments.
                 </div>
-                <button type="submit" class="btn btn-primary pull-right" style="margin-bottom:15px">Share</button>
-              </form>
+              <?php } ?>
+
             </div>
           </div>
 

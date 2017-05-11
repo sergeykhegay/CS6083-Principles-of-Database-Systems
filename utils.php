@@ -26,13 +26,14 @@
 // USER
   function user_exists($uid) {
     $db_connection = get_db_connection();
-      $result = pg_query($db_connection, 
-        "SELECT * 
-           FROM users
-          WHERE uid='$uid';"
-      );
-      
-      return pg_num_rows($result) == 1;
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM users
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    return pg_num_rows($result) == 1;
   };
 
   function insert_user($uid, $password_hash) {
@@ -41,7 +42,8 @@
       "INSERT INTO users (uid, upasswordhash) 
           VALUES ('$uid', '$password_hash');"
     );
-    
+    pg_close();
+
     return is_resource($result); // true or false
   };
 
@@ -52,6 +54,7 @@
          FROM users
         WHERE uid='$uid';"
     );
+    pg_close();
 
     return pg_fetch_array($result);
   }
@@ -67,6 +70,8 @@
       $result = pg_query
       ($db_connection, "SELECT * FROM project WHERE Lower(catname) = '$category';");
     }
+    pg_close();
+
     return $result;
   }
 
@@ -84,7 +89,7 @@
                ptitle ILIKE '%$keyword%' OR
                catname ILIKE '%$keyword%';");
     }
-    
+    pg_close();
     // if (!is_resource($result)) {
     //   return null;
     // }
@@ -155,6 +160,7 @@
       "SELECT * 
          FROM pledge natural join project 
         WHERE uid = '$uid';");
+    pg_close();
     
     return $result;
   }
@@ -262,6 +268,19 @@
       "SELECT * 
          FROM likes
         WHERE pid='$pid' AND uid='$uid';"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  }
+
+  function like_exists_active($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM likes
+        WHERE pid='$pid' AND 
+              uid='$uid' AND
+              likeactive=TRUE;"
     );
     pg_close();
     return pg_num_rows($result) == 1;
