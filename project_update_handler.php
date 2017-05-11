@@ -12,7 +12,6 @@
     $filepath = test_input($_POST["filepath"]);
     $mediavideo = test_input($_POST["mediavideo"]);
 
-
     // flags
     $title_empty = empty($title);
     $description_empty = empty($description);

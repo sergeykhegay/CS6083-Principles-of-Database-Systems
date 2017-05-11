@@ -215,3 +215,120 @@ CREATE TABLE update (
   PRIMARY KEY (updid),
   FOREIGN KEY (pid) REFERENCES project (pid)
 );
+
+
+
+
+-- EVENTS
+
+DROP VIEW events_view;
+CREATE OR REPLACE VIEW events_view (action, date, uid, id1, id2, context) AS
+  (SELECT text 'follow' AS action,
+       fdate AS date,
+         uid1 AS uid, 
+         uid2 AS id1, 
+         null AS id2, 
+         null AS context
+    FROM follows)
+    
+  UNION ALL
+  
+  (SELECT text 'like' AS action, 
+       likedate AS date,  
+         likes.uid AS uid, 
+         likes.pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM likes 
+         CROSS JOIN project
+   WHERE likes.pid = project.pid AND
+         likeactive = TRUE)
+         
+  UNION ALL
+  
+  (SELECT text 'unlike' AS action, 
+       likedate AS date,  
+         likes.uid AS uid, 
+         likes.pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM likes 
+         CROSS JOIN project
+   WHERE likes.pid = project.pid AND
+         likeactive = FALSE)
+   
+   UNION ALL
+   
+  (SELECT text 'comment' AS action, 
+       comdate AS date, 
+         comment.uid AS uid, 
+         comment.pid::varchar AS id1, 
+         cid::varchar AS id2, 
+         ptitle AS context
+    FROM comment
+         CROSS JOIN project
+   WHERE comment.pid = project.pid)
+   
+   UNION ALL
+   
+  (SELECT text 'pledge' AS action, 
+       pldate AS date,  
+         pledge.uid AS uid, 
+         pledge.pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM pledge
+         CROSS JOIN project
+   WHERE pledge.pid = project.pid AND
+         plcancelled = FALSE)
+   
+   UNION ALL
+   
+  (SELECT text 'pledge' AS action, 
+       pldate AS date,  
+         pledge.uid AS uid, 
+         pledge.pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM pledge
+         CROSS JOIN project
+   WHERE pledge.pid = project.pid AND
+         plcancelled = TRUE)
+    
+    UNION ALL
+   
+  (SELECT text 'update' AS action, 
+       upddate AS date, 
+         project.uid AS uid, 
+         update.pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM update
+         CROSS JOIN project
+   WHERE update.pid = project.pid)
+         
+    UNION ALL
+   
+  (SELECT text 'create' AS action, 
+       pstartdate AS date,  
+         uid AS uid, 
+         pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM project
+   WHERE pcancelled = FALSE)
+         
+    UNION ALL
+   
+  (SELECT text 'cancell' AS action, 
+       pclosedate AS date,  
+         uid AS uid, 
+         pid::varchar AS id1, 
+         null AS id2, 
+         ptitle AS context
+    FROM project
+   WHERE pcancelled = TRUE)
+;
+   
+   
+SELECT * from events_view;
