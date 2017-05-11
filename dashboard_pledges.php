@@ -144,7 +144,7 @@
             <h4 class="modal-title">Cancel Pledge</h4>
           </div>
           <div class="modal-body">
-            <p>Are you sure to cancel pledge for project?></p>
+            <p>Are you sure to cancel pledge for project?</p>
           </div>
           <div class="modal-footer">
             <form id="cancelForm" method="post" action="./dashboard_pledges.php?cancel=true">
