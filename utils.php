@@ -37,6 +37,19 @@
     return pg_num_rows($result) == 1;
   };
 
+  function user_update($uid, $city, $interest) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE users
+          SET ucity = '$city',
+              uinterests = '$interest'
+        WHERE uid = '$uid';"
+    );
+    pg_close();
+
+    return is_resource($result);
+  };
+
   function insert_user($uid, $password_hash) {
     $db_connection = get_db_connection();
     $result = @pg_query($db_connection, 
@@ -191,7 +204,7 @@
     }
     return $result;
   }
-  
+
   function get_user_supported_projects($uid){
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 

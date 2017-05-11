@@ -28,9 +28,6 @@
         <li role="presentation">
           <a href="./dashboard_pledges.php"> Pledges </a>
         </li>
-        <li role="presentation">
-          <a href="./dashboard_profile.php"> Profile </a>
-        </li>
       </ul>
 
       <?php
