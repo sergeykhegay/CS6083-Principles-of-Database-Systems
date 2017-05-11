@@ -10,59 +10,124 @@
     <div class="container">
       <?php include "./inc_navbar.inc"; ?>
 
-      <?php
-        if ($_SERVER["REQUEST_METHOD"] == "GET") {
-          $email_empty = isset($_GET["email_empty"]);
-          $password_empty = isset($_GET["password_empty"]);
-          $login_failed = isset($_GET["login_failed"]);
-
-          // Display errors
-          if ($email_empty) {
-            echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'email' cannot be empty.
-                  </div>";
-          }
-          if ($password_empty) {
-            echo "<div class=\"alert alert-danger\">
-                   <strong>Error!</strong> Field 'password' cannot be empty.
-                  </div>";
-          }
-          if ($login_failed) {
-            echo "<div class=\"alert alert-danger\">
-                    <strong>Error!</strong> Forgot your password? Well, we can do nothing... Or maybe you forgot to sign up <a href=\"./user_signup.php\">here</a>?
-                  </div>";
-          }
-        }
+      <?php 
+        $uid = $_GET["uid"];
+        $user_info = get_user($uid);
+        $project = get_user_project($uid);
       ?>
-      
-      <form method="post" action="./user_login_handler.php">
-        <!-- login -->
-        <div class="form-group row">
-          <label for="inputEmail" class="col-sm-2 col-form-label">Email *</label>
-          <div class="col-sm-10">
-            <input type="email" class="form-control" id="inputEmail" 
-                   aria-describedby="emailHelp" placeholder="Enter email" name="email"
-                   <?php if (!$email_empty && $fillin_form) echo "value=\"$email\"";?>
-            >
+      <div class="container">
+          <div class="row">
+            <div class="col-sm-4 col-md-4 user-details">
+              <div class="user-image">
+                <img src="http://success-at-work.com/wp-content/uploads/2015/04/free-stock-photos.gif" class="img-circle" width="150" height="150">
+              </div>
+              <div class="user-info-block">
+                <div class="user-heading">
+                  <h3><?=$user_info->uname?></h3>
+                  <span class="help-block"><?=$user_info->uid?></span>
+               </div>
+                 <!--  <ul class="navigation">
+                    <li class="active">
+                      <a data-toggle="tab" href="#information">
+                        <span class="glyphicon glyphicon-user"></span>
+                      </a>
+                    </li>
+                    <li>
+                      <a data-toggle="tab" href="#likes">
+                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                      </a>
+                    </li>
+                    <li>
+                      <a data-toggle="tab" href="#email">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                      </a>
+                    </li>
+                    <li>
+                      <a data-toggle="tab" href="#events">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                      </a>
+                    </li>
+                  </ul> -->
+                  <div class="user-body">
+                    <div class="tab-content">
+                      <div id="information" class="tab-pane active">
+                        <!-- <h4>Account Information</h4> -->
+                        <p>City: <?=$user_info->ucity?> </p>
+                        <p>Interest: <?=$user_info->uinterests?> </p>
+                      </div>
+                      <div id="likes" class="tab-pane active">
+                        
+                      </div>
+                      <div id="email" class="tab-pane">
+                        <h4>Send Message</h4>
+                      </div>
+                      <div id="events" class="tab-pane">
+                        <h4>Events</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
           </div>
         </div>
 
-        <!-- password -->
-        <div class="form-group row">
-          <label for="inputPassword" class="col-sm-2 col-form-label">Password *</label>
-          <div class="col-sm-10">
-            <input type="password" class="form-control" id="inputPassword" 
-                   placeholder="Enter password" name="password"
-            >
-          </div>
-        </div>
+        <table class="table">
+        <caption> </caption>
+        <tr>
+          <th>Project</th>
+          <th>Info</th>
+          <th></th>
+        </tr>
+        <?php
+          while ($project_info = pg_fetch_object($project)) {
+            $disable = "active";
+            if ($project_info->psuccess == 't') {
+              $status = "Successful";
+              $disable = "disabled";
+            }
+            else if ($project_info->pactive == 'f') {
+              if($project_info->pcancelled == 't'){
+                $status = "Cancelled";
+              }
+              else{
+                $status = "Failed";
+              }
+              $disable = "disabled";
+            }
+            else {
+              $status = "Funding";
+            }
+        ?>
+          <tr>
+            <td class="col-sm-8 col-md-5">
+              <div class="media">
+                <img class="pull-left" src=<?=$project_info->pimage?> style="width: 150px; height: 120px;"> </a>
+                <div class="media-body">
+                  <h4 class="media-heading"><a href="./project.php?pid=<?=$project_info->pid?>"><?=$project_info->ptitle?></a></h4>
+                  <h5 class="media-heading"> by <a href="#"><?=$project_info->uid?></a></h5>
+                  <span>Status: </span><span class="text-success"><?=$status?></span>
+                </div>
+              </div>
+            </td>
+            <td>
+              Created on <?=substr($project_info->pstartdate, 0, 19)?>
+              <br><strong>Maximum required Amount:</strong> $<?=$project_info->pmaxamount?>.00</br>
+              <strong>Current Fund:</strong> $<?=$project_info->pcurrentamount?>.00
+            </td>
+            <td>
+              <a href="./project_update.php?pid=<?=$project_info->pid ?>">
+              <button class="btn btn-primary btn-sm">update</button> </a>
+              <button onclick="changePidTo(<?=$project_info->pid?>);" type="button" class="btn btn-primary btn-sm <?=$disable?>" 
+              <?php if($disable == 'active'){ echo "data-toggle=\"modal\" data-target=\"#myModal\"";}?> >Cancel Project</button>
+            </td>
+          </tr>
+        <?php
+          }
+        ?>
+      </table>
+        
 
-        <div class="form-group row">
-          <div class="offset-sm-2 col-sm-10">
-            <button type="submit" class="btn btn-primary">Log in!</button>
-          </div>
-        </div>
-      </form>
+
 
     </div>  <!-- container --> 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

@@ -59,6 +59,18 @@
     return pg_fetch_array($result);
   }
 
+  function get_user($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT *
+         FROM users
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    return pg_fetch_object($result);
+  }
+
 // PROJECT
   function get_projects($category){
     $db_connection = get_db_connection();
@@ -144,7 +156,7 @@
     $result = pg_query($db_connection, 
       "SELECT * 
          FROM project
-        WHERE uid='$uid' AND pcancelled = 'FALSE';"
+        WHERE uid='$uid';"
     );
     pg_close();
 

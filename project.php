@@ -76,7 +76,7 @@
           </div>
           <div class="col-md-10">
             <h1 class="text-center"><?php echo "$title"; ?></h1>
-            <p class="text-center"><small> by <a href="./user.php?uid=<?=$uid ?>"><?=$uid ?></a></small></p>
+            <p class="text-center"><small> by <a href="./user.php?uid=<?=$ownerid ?>"><?=$ownerid ?></a></small></p>
           </div>
           <div class="col-md-1 pull-right" style="vertical-align: text-bottom;">
             <input id="pidInput" type="hidden" value="<?=$pid?>">
