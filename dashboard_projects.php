@@ -59,7 +59,12 @@
               $disable = "disabled";
             }
             else if ($project_info->pactive == 'f') {
-              $status = "Failed";
+              if($project_info->pcancelled == 't'){
+                $status = "Cancelled";
+              }
+              else{
+                $status = "Failed";
+              }
               $disable = "disabled";
             }
             else {

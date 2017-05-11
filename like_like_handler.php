@@ -8,7 +8,6 @@
   $uid = test_input($_POST["uid"]);
   $pid = test_input($_POST["pid"]);
 
-  echo $pid;
   $like_exists = like_exists($uid, $pid);
 
   if (!empty($uid) && !empty($pid)) {

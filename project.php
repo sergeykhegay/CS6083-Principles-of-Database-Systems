@@ -4,6 +4,12 @@
   // data
   $uid = $_SESSION["uid"];
   $pid = test_input($_GET["pid"]);
+
+  if (empty($pid)) {
+    header("Location: ./404.php");
+    die();
+  }
+
   $project = get_project_info($pid);
 
   // flags
@@ -79,7 +85,7 @@
           </div>
           <div class="col-md-10">
             <h1 class="text-center"><?php echo "$title"; ?></h1>
-            <p class="text-center"><small> by <a href="./user.php?uid=<?=$uid ?>"><?=$uid ?></a></small></p>
+            <p class="text-center"><small> by <a href="./user.php?uid=<?=$ownerid ?>"><?=$ownerid ?></a></small></p>
           </div>
           <div class="col-md-1 pull-right" style="vertical-align: text-bottom;">
             <input id="pidInput" type="hidden" value="<?=$pid?>">
@@ -124,16 +130,15 @@
                   
                   <?php if ($update["updmediavideo"] === 't') { ?>
                     <div class="view overlay hm-white-slight" style="text-align:center">
-                        <!-- <video  style="text-align:center" controls>
-                          <source src='<$update["updmedia"]?>' type="video/mp4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <video style="text-align:center" controls>
+                          <source src='<?=$update["updmedia"]?>' type="video/mp4">
                           Your browser does not support the video tag.
-                        </video> -->
-                        <div class="embed-responsive embed-responsive-16by9">
-                          <iframe class="embed-responsive-item" src='<?=$update["updmedia"]?>'></iframe>
-                        </div>
-                        <a href="#">
-                            <div class="mask waves-effect waves-light"></div>
-                        </a>
+                        </video>
+                      </div>
+                      <a href="#">
+                          <div class="mask waves-effect waves-light"></div>
+                      </a>
                     </div>
                   <?php } else { ?>
                     <div class="view overlay hm-white-slight" style="text-align:center">
@@ -158,16 +163,9 @@
                 <strong>Info!</strong> No updates yet.
               </div>
             <?php } ?>
-
-
-
-
-
         </div>
+
         <div class="col-md-6">
-
-
-
           <!-- Pledge -->
           <div class="card" style="margin-bottom:20px">
             <div class="card-block">
@@ -311,7 +309,7 @@
                 <?php
               }
             } else {
-              echo "<div class=\"alert alert-info\"><strong>Info!</strong> Be the first appreciator. Spare some words!</div>";
+              echo "<div class=\"alert alert-info text-center\"><strong>Info!</strong> Be the first appreciator. Spare some words!</div>";
             }
 
           ?>

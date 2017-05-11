@@ -60,6 +60,7 @@
     return pg_fetch_array($result);
   }
 
+
   function get_umarkreaddate($uid) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
@@ -82,6 +83,18 @@
     pg_close();
 
     return is_resource($result);
+  }
+
+  function get_user($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT *
+         FROM users
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    return pg_fetch_object($result);
   }
 
 // PROJECT
@@ -169,7 +182,23 @@
     $result = pg_query($db_connection, 
       "SELECT * 
          FROM project
-        WHERE uid='$uid' AND pcancelled = 'FALSE';"
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    if (!isset($result)) {
+      return;
+    }
+    return $result;
+  }
+  
+  function get_user_supported_projects($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM project, pledge
+        WHERE pledge.uid ='$uid' AND
+              pledge.pid = project.pid;"
     );
     pg_close();
 
@@ -479,6 +508,42 @@
 
     return is_resource($result);
   };
+
+// FOLLOW
+  function follow_exists($uid1, $uid2) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM follows
+        WHERE uid1='$uid1' AND 
+              uid2='$uid2';"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  }
+
+  function insert_follow($uid1, $uid2) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO follows (uid1, uid2)
+        VALUES ('$uid1', '$uid2');"
+    );
+    pg_close();
+
+    return is_resource($result);
+  }
+
+  function delete_follow($uid1, $uid2) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "DELETE FROM follows
+        WHERE uid1='$uid1' AND 
+              uid2='$uid2';"
+    );
+    pg_close();
+
+    return is_resource($result);
+  }
 
 
 // EVENTS

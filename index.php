@@ -47,15 +47,8 @@
 
       
       <!-- Tags -->
-      <form action="./index.php" method="GET" >
+      
         <ul class="nav nav-tabs nav-justified"> 
-          <li role="presentation">
-              <input type="text" class="form-control" placeholder="Search" 
-                     name="keyword" value="<?=$keyword?>" style="width:150px">
-          </li>
-          <li role="presentation" style="margin-left:-50px">
-            <button type="submit" class="btn btn-default" style="width:auto">Submit</button>
-          </li>
           <li role="presentation" <?php if ($tag_all) echo "class='active'"; ?> >
             <a href=".?">All</a>
           </li>
@@ -78,12 +71,32 @@
             <a href=".?tag=food">Food</a>
           </li>
         </ul>
-      </form>
+      
        
 
       <!-- List projects here based on tags -->
-      
-      
+        
+      <form action="./index.php" method="GET" style="margin-top:3px">
+        <div class="form-group">
+          <div class="row">
+            <div class="col-md-3">
+            </div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search" 
+                      name="keyword" value="<?=$keyword?>">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-default">Submit</button>
+                </span>
+              </div>
+            </div>
+            <div class="col-md-3">
+            </div>
+          </div>
+        </div>
+      </form>
+        
+        
       
       <table>
         <?php 

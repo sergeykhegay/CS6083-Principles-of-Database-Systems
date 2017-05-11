@@ -76,13 +76,12 @@ CREATE TABLE creditcard (
 -- ##################################### FOLLOWS
 CREATE TABLE follows (
   uid1   varchar(45) NOT NULL,
-  uid2   varchar(45) NOT NULL CHECK(uid1 != uid2),
+  uid2   varchar(45) NOT NULL,
   fdate  timestamp DEFAULT current_timestamp,
   PRIMARY KEY (uid1, uid2),
   FOREIGN KEY (uid1) REFERENCES users (uid),
   FOREIGN KEY (uid2) REFERENCES users (uid)
 );
-
 
 
 -- ##################################### LIKES
