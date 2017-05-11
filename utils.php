@@ -189,6 +189,19 @@
     return pg_num_rows($result) == 1;
   };
 
+  function pledge_exists_active($uid, $pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM pledge
+        WHERE pid=$pid AND
+              uid='$uid' AND
+              plcancelled=FALSE;"
+    );
+    pg_close();
+    return pg_num_rows($result) == 1;
+  };
+
   function insert_pledge($uid, $pid, $ccnumber, $amount) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
@@ -357,6 +370,41 @@
     }
     return pg_fetch_all($result);
   }
+
+
+
+// UPDATE
+  function get_updates($pid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT *
+         FROM update
+        WHERE pid='$pid'
+        ORDER BY upddate;"
+    );
+    pg_close();
+
+    if (!is_resource($result)) {
+      return null;
+    }
+    return pg_fetch_all($result);
+  }
+
+
+  function  insert_update($pid, $title, $description, $filepath, $mediavideo) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO update (pid, updtitle, upddescription, updmedia, updmediavideo)
+          VALUES ('$pid', '$title', '$description', '$filepath', '$mediavideo')"
+    );
+    
+    pg_close();
+
+    return is_resource($result);
+  };
+
+
+
 
 
 // PRODUCT

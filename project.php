@@ -24,8 +24,18 @@
     $maxamount = $project["pmaxamount"];
     $currentamount = $project["pcurrentamount"];
 
+    $project_success = $project["psuccess"] === "t";
+    $project_active = $project["pactive"] === "t";
+    $project_cancelled = $project["pcancelled"] === "t";
+
+    $project_closedate = pg_to_php_date($project["pclosedate"]);
+
+
     $creditcards = get_creditcards($uid);
+    $updates = get_updates($pid);
+
     $liked = like_exists_active($uid, $pid);
+    $pledged = pledge_exists_active($uid, $pid);
   } else {
     header("Location: ./404.php");
     die();
@@ -48,11 +58,21 @@
                                     height: 320px">
       </div>
       <link rel="stylesheet" type="text/css" href="grid_layout.css">
-      
+
       <!-- List project -->
       <div class="page-header">
         <div class="row">
           <div class="col-md-1">
+            <?php if ($project_cancelled) { ?>
+              <button class="btn btn-danger" 
+                    type="submit" style="align:bottom;display:block;width:70px">Sad</button>
+            <?php } elseif ($project_success) { ?>
+              <button class="btn btn-success" 
+                    type="submit" style="align:bottom;display:block;width:70px">Funded</button>
+            <?php } else { ?>
+              <button class="btn btn-danger" 
+                    type="submit" style="align:bottom;display:block;width:70px">Fail</button>
+            <?php } ?>
           </div>
           <div class="col-md-10">
             <h1 class="text-center"><?php echo "$title"; ?></h1>
@@ -90,27 +110,57 @@
             <!--/.Card content-->
           </div>
 
-          <div class="card" style="margin-bottom:10px">
-            <div class="card-block" >
-                <h8 class="card-title">Update</h8><small> on DATE HERE</small>
-            </div>
-            <!--Card image or video-->
-            <div class="view overlay hm-white-slight">
-                <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20%287%29.jpg" class="img-fluid" alt="">
-                <a href="#">
-                    <div class="mask waves-effect waves-light"></div>
-                </a>
-            </div>
-            <!--/.Card image-->
 
-            <div class="card-block">
-                <!--Text-->
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            </div>
-          </div>
+          <?php 
+            if (!empty($updates)) {
+              foreach ($updates as $update) { ?>
+                <div class="card" style="margin-bottom:10px">
+                  <div class="card-block" >
+                      <h8 class="card-title">Update</h8><small> on <?=pg_to_php_date($update["upddate"])?></small>
+                  </div>
+                  
+                  <?php if ($update["updmediavideo"] === 't') { ?>
+                    <div class="view overlay hm-white-slight" style="text-align:center">
+                        <video  style="text-align:center" controls>
+                          <source src='<?=$update["updmedia"]?>' type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                        <a href="#">
+                            <div class="mask waves-effect waves-light"></div>
+                        </a>
+                    </div>
+                  <?php } else { ?>
+                    <div class="view overlay hm-white-slight" style="text-align:center">
+                        <img src='<?=$update["updmedia"]?>' class="img-fluid" alt="">
+                        <a href="#">
+                            <div class="mask waves-effect waves-light"></div>
+                        </a>
+                    </div>
+                  <?php } ?>
+
+                  <!--/.Card image-->
+
+                  <div class="card-block">
+                      <!--Text-->
+                      <h4><?=$update["updtitle"]?></h4>
+                      <p class="card-text"><?=$update["upddescription"]?></p>
+                  </div>
+                </div><?php 
+              }
+            } else { ?>
+              <div class="alert alert-info text-center">
+                <strong>Info!</strong> No updates yet.
+              </div>
+            <?php } ?>
+
+
+
+
 
         </div>
         <div class="col-md-6">
+
+
 
           <!-- Pledge -->
           <div class="card" style="margin-bottom:20px">
@@ -151,7 +201,25 @@
               <hr />
               
               <!-- pledge form -->
-              <?php if ($user_logged_in) { ?>
+
+              <?php if (!$project_active) { ?>
+
+                <?php 
+                  if ($project_cancelled) {
+                    echo "<div class='alert alert-danger text-center'>
+                            <strong>Sad!</strong> The owner cancelled the project on $project_closedate. All pledges have been released
+                          </div>";
+                  } elseif ($project_success) {
+                    echo "<div class='alert alert-success text-center'>
+                           <strong>Hoooray!</strong> Successfully funded on $project_closedate! If you were one of the backers you can rate it now at the dashboard.
+                         </div>";
+                  } elseif (!$project_success) {
+                    echo "<div class='alert alert-danger text-center'>
+                            <strong>Sad!</strong> The project did not get required funding in time.
+                          </div>";
+                  }
+                ?>
+              <?php } elseif ($user_logged_in) { ?>
                 <form>
                   <div id="credicardGroup" class="form-group">
                     <label class="control-label" for="exampleInputAmount">Credit Card</label>
@@ -180,7 +248,11 @@
                     </div>
                     <p id="pledgeHelp" class="help-block"></p>                    
                   </div>
-                  <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
+                  <?php if ($pledged) { ?>
+                    <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
+                  <?php } else { ?>
+                    <button type="submit" class="btn btn-error pull-right" style="margin-bottom:15px">You cannot pledge twise</button> 
+                  <?php } ?>
                 </form>
               <?php } else { ?>
                 <div class="alert alert-info text-center">

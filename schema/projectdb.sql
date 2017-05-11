@@ -198,13 +198,14 @@ FOR EACH ROW EXECUTE PROCEDURE check_before_pledge_insert();
 
 -- UPDATES
 CREATE TABLE update (
-  uid             varchar(45) NOT NULL,
+  updid           SERIAL UNIQUE NOT NULL,
   pid             int NOT NULL,
+  
   upddate         timestamp DEFAULT current_timestamp,
-  updmedia        varchar(100), -- relative url to a file on the server
-  updmediavideo   boolean DEFAULT FALSE, -- video or image
   updtitle        varchar(45),
   upddescription  varchar(400),
-  PRIMARY KEY (uid, pid, upddate),
-  FOREIGN KEY (uid, pid) REFERENCES project (uid, pid)
+  updmedia        varchar(100), -- relative url to a file on the server
+  updmediavideo   boolean DEFAULT FALSE, -- video or image
+  PRIMARY KEY (updid),
+  FOREIGN KEY (pid) REFERENCES project (pid)
 );
