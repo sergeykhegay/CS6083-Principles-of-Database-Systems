@@ -221,6 +221,22 @@
     return $result;
   }
 
+  function get_user_liked_projects($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT * 
+         FROM project, likes
+        WHERE likes.uid ='$uid' AND
+              likes.pid = project.pid;"
+    );
+    pg_close();
+
+    if (!isset($result)) {
+      return;
+    }
+    return $result;
+  }
+
   function get_project_info($pid) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
@@ -564,6 +580,14 @@
     pg_close();
 
     return is_resource($result);
+  }
+
+  function get_followers($uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection,
+      "SELECT * from follows
+      where uid2='$uid';");
+    return $result;
   }
 
 

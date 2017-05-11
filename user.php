@@ -130,7 +130,66 @@
 
 
 
-<!-- SUPPORTED PROJECTS -->
+<!-- LIKE PROJECTS -->
+      <div class="page-header">
+        <h2>Liked Projects </h2>
+      </div>
+
+      <table class="table">
+        <tr>
+          <th>Project</th>
+          <th>Info</th>
+          <th>Action</th>
+        </tr>
+        <?php
+          $supported = get_user_liked_projects($uid);
+          while ($project_info = pg_fetch_object($supported)) {
+            $disable = "active";
+            if ($project_info->psuccess == 't') {
+              $status = "Successful";
+              $disable = "disabled";
+            }
+            else if ($project_info->pactive == 'f') {
+              if($project_info->pcancelled == 't'){
+                $status = "Cancelled";
+              }
+              else{
+                $status = "Failed";
+              }
+              $disable = "disabled";
+            }
+            else {
+              $status = "Funding";
+            }
+        ?>
+          <tr>
+            <td class="col-sm-8 col-md-5">
+              <div class="media">
+                <img class="pull-left" src=<?=$project_info->pimage?> style="width: 150px; height: 120px;"> </a>
+                <div class="media-body">
+                  <h4 class="media-heading"><a href="./project.php?pid=<?=$project_info->pid?>"><?=$project_info->ptitle?></a></h4>
+                  <h5 class="media-heading"> by <a href="#"><?=$project_info->uid?></a></h5>
+                  <span>Status: </span><span class="text-success"><?=$status?></span>
+                </div>
+              </div>
+            </td>
+            <td>
+              Created on <?=substr($project_info->pstartdate, 0, 19)?>
+              <br><strong>Maximum required Amount:</strong> $<?=$project_info->pmaxamount?>.00</br>
+              <strong>Current Fund:</strong> $<?=$project_info->pcurrentamount?>.00
+            </td>
+            <td>
+              <a href="./project.php?pid=<?=$project_info->pid ?>">
+                <button class="btn btn-info btn-sm">View</button>
+              </a>
+            </td>
+          </tr>
+        <?php
+          }
+        ?>
+      </table>
+      <!-- container --> 
+
       <div class="page-header">
         <h2>Supported Projects <small>From heart to heart...</small></h2>
       </div>
@@ -183,6 +242,29 @@
                 <button class="btn btn-info btn-sm">View</button>
               </a>
             </td>
+          </tr>
+        <?php
+          }
+        ?>
+      </table>
+      <!-- container --> 
+
+    <!-- FOLLOWERS -->
+      <div class="page-header">
+        <h2>Followers </h2>
+      </div>
+
+      <table class="table">
+        <tr>
+        </tr>
+        <?php
+          $followers = get_followers($uid);
+          while ($follower = pg_fetch_object($followers)) {
+        ?>
+          <tr>
+              <a href="./user.php?uid=<?=$follower->uid1?>">
+              <p> <?=$follower->uid1?> </p>
+            </a>
           </tr>
         <?php
           }

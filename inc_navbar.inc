@@ -27,7 +27,7 @@
               <!-- <li><a href='./user.php'>Connect</a></li> -->
             </ul>
             <p class='navbar-text navbar-right'><a href='./user_logout.php' class='navbar-link'>Log out</a></p>
-            <p class='navbar-text navbar-right'>Signed in as <a href='./dashboard_profile.php' class='navbar-link'>{$_SESSION["uid"]}</a></p>
+            <p class='navbar-text navbar-right'>Signed in as <a href='./user.php?uid={$_SESSION["uid"]}' class='navbar-link'>{$_SESSION["uid"]}</a></p>
           ";
         } else {
           echo "
