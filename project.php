@@ -248,10 +248,10 @@
                     </div>
                     <p id="pledgeHelp" class="help-block"></p>                    
                   </div>
-                  <?php if ($pledged) { ?>
+                  <?php if (!$pledged) { ?>
                     <button id="pledgeButton" type="submit" class="btn btn-success pull-right" style="margin-bottom:15px">Pledge!</button> 
                   <?php } else { ?>
-                    <button type="submit" class="btn btn-error pull-right" style="margin-bottom:15px">You cannot pledge twise</button> 
+                    <button type="submit" class="btn btn-error pull-right" style="margin-bottom:15px" disabled>You cannot pledge twise</button> 
                   <?php } ?>
                 </form>
               <?php } else { ?>
@@ -395,7 +395,7 @@
           contentType: false, // important
           data: data,
           url: "./pledge_handler.php",
-          dataType : 'text',
+          dataType : 'json',
           success: function(data, textStatus, jqXHR) {
             console.log(data);
             if (typeof data.error === 'undefined') {

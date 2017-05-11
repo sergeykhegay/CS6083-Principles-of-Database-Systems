@@ -186,14 +186,15 @@
     );
     $amount = pg_query($db_connection,
       "SELECT plamount
-          FROM pledge
+         FROM pledge
         WHERE pid='$pid' AND uid='$uid';"
     );
+
     $amount = pg_fetch_row($amount)[0];
     pg_query($db_connection, 
       "UPDATE project 
           SET pcurrentamount = pcurrentamount - '$amount'
-        WHERE pid='$pid'pactive='TRUE'; "
+        WHERE pid='$pid' AND pactive='TRUE';"
     );
     pg_close();
   }
