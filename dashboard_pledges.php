@@ -97,9 +97,10 @@
               <td>
                 <?=$row->ccname?> *<?=substr($row->ccnumber, -4)?> 
                 <br><?=substr($row->pldate,0, 19)?> </br>
-                <span>Status: </span><code><?=$charged?></code>
+                <span><strong>Status:</strong> </span><code><?=$charged?></code>
               </td>
-              <td><button onclick="changePidTo(<?=$row->pid?>);" type="button" class="btn btn-primary btn-sm <?=$disable?>" 
+              <td>
+                <button onclick="changePidTo(<?=$row->pid?>);" type="button" class="btn btn-primary btn-sm <?=$disable?>" 
                 <?php if($disable == 'active'){ echo " data-toggle=\"modal\" data-target=\"#myModal\"";}?> >Cancel Pledge</button>
               </td>
             </tr>
@@ -119,7 +120,7 @@
             <h4 class="modal-title">Cancel Pledge</h4>
           </div>
           <div class="modal-body">
-            <p>Are you sure to cancel pledge for project <?=$project_info["title"]?></p>
+            <p>Are you sure to cancel pledge for project?></p>
           </div>
           <div class="modal-footer">
             <form id="cancelForm" method="post" action="./dashboard_pledges.php?cancel=true">
