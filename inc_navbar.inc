@@ -19,7 +19,7 @@
                   <li><a href='./dashboard_projects.php'>Projects</a></li>
                   <li><a href='./dashboard_pledges.php'>Pledges</a></li>
                   <li role='separator' class='divider'></li>
-                  <li><a href='./dashboard_profile.php'>Profile</a></li>
+                  <!-- <li><a href='./dashboard_profile.php'>Profile</a></li> -->
                 </ul>
               </li>
               <li><a href='./'>Explore</a></li>

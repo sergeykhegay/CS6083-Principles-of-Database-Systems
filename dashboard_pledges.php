@@ -113,7 +113,7 @@
                 <?php if($disable == 'active'){ echo " data-toggle=\"modal\" data-target=\"#myModal\"";}?> >Cancel Pledge</button>
               </td>
               <td>
-                <form class="form-horizontal" method="post" action="./pledge_handler.php">
+                <form class="form-horizontal" method="post" action="./pledge_handler_rating.php">
                 <div class="col-sm-4">
                   <input type="number" class="form-control" id="inputMin" name="min" 
                        value="1">
