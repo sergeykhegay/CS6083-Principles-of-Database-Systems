@@ -102,7 +102,7 @@
     $db_connection = get_db_connection();
     if($category == null){
       $result = pg_query
-      ($db_connection, "SELECT * FROM project WHERE pactive = 'TRUE';");
+      ($db_connection, "SELECT * FROM project WHERE pcancelled = 'FALSE';");
     }
     else{
       $result = pg_query
@@ -119,7 +119,7 @@
     $result = null;
 
     if (empty($keyword)) {
-      $result = pg_query($db_connection, "SELECT * FROM project WHERE pactive = 'TRUE';");
+      $result = pg_query($db_connection, "SELECT * FROM project WHERE pcancelled = 'FALSE';");
     } else {
       $result = pg_query($db_connection, 
         "SELECT * 
@@ -230,7 +230,7 @@
       "UPDATE project  
          SET pcancelled = 'TRUE',
              pactive = 'FALSE',
-             plosedate = current_timestamp
+             pclosedate = current_timestamp
         WHERE pid=$pid ;"
     );
     pg_close();
@@ -242,8 +242,7 @@
     $result = pg_query($db_connection, 
       "SELECT * 
          FROM pledge natural join creditcard
-        WHERE uid = '$uid' AND 
-              plcancelled = 'FALSE';"
+        WHERE uid = '$uid';"
     );
     
     return $result;
@@ -281,6 +280,15 @@
         WHERE pid='$pid' AND pactive='TRUE';"
     );
     pg_close();
+  }
+
+  function update_rating($rate, $pid, $uid){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE pledge
+        SET plrating = '$rate'
+        WHERE pid='$pid' AND uid='$uid';"
+    );
   }
 
   function pledge_exists($uid, $pid) {

@@ -116,7 +116,7 @@
             }
         ?>
             <div class="col-sm-6 col-md-4 col-lg-4 mt-4" style="padding-top:30px">
-              <div class="card">
+              <div class="card" style="width: 20rem;">
                 <div class="card-img-div-top" style="background: url('<?=$image?>') no-repeat center center;
                                                      background-size: cover">
                 </div>

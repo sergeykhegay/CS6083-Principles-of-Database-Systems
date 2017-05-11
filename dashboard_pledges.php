@@ -35,12 +35,29 @@
 
       <?php
         $is_cancelled = isset($_GET["cancel"]);
+        
+        $rate = $_GET["rate"];
+        $is_rated = true;
+        if($rate == 0){
+          $is_rated = false;
+        }
+        
         if($is_cancelled) {
           echo "<div class=\"alert alert-success\">
                   <strong>Pledge cancelled successfully!</strong> 
                 </div>";
           $pid=test_input($_GET["pid"]);
           cancel_pledge($pid, test_input($_SESSION["uid"]));
+        }
+
+        if($is_rated == true){
+          $project_rate = $_GET["pid"];
+          $project_rate_title = get_project($project_rate)["ptitle"];
+          ?>
+          <div class="alert alert-success">
+            <strong>Successfully rated project <u> <?=$project_rate_title?> </u> <?=$rate?> stars</strong> 
+          </div>
+          <?php
         }
         $pledges = get_pledges(test_input($_SESSION["uid"]));
       ?>
@@ -51,15 +68,17 @@
           <th>Project</th>
           <th>Amount</th>
           <th>Payment Info</th>
-          <th>Rating</th>
+          <th></th>
         </tr>
         <?php
           while ($row = pg_fetch_object($pledges)) {
             $project_info = get_project($row->pid);
             $disable = "active";
+            $rate = "disabled";
             if ($project_info["psuccess"] == 't') {
               $status = "Successful";
               $disable = "disabled";
+              $rate = "active";
             }
             else if ($project_info["pactive"] == 'f') {
               $status = "Failed";
@@ -95,6 +114,21 @@
               <td>
                 <button onclick="changePidTo(<?=$row->pid?>);" type="button" class="btn btn-primary btn-sm <?=$disable?>" 
                 <?php if($disable == 'active'){ echo " data-toggle=\"modal\" data-target=\"#myModal\"";}?> >Cancel Pledge</button>
+              </td>
+              <td>
+                <form class="form-horizontal" method="post" action="./pledge_handler.php">
+                <div class="col-sm-4">
+                  <input type="number" class="form-control" id="inputMin" name="min" 
+                       value="1">
+                  <input type="hidden" name="pid" value=<?=$row->pid?>>
+                  <input type="hidden" name="disable" value=<?=$rate?>>
+                  <small id="minHelp" class="form-text text-muted">scale 1-5!</small>
+                </div>
+                <div class="offset-sm-10 col-sm-2">
+                  <button type="submit" class="btn btn-primary <?=$rate?>">Rate now!</button>
+                </div>
+              </form>
+              
               </td>
             </tr>
             <?php
