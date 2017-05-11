@@ -106,27 +106,24 @@
         <!-- image-->
         <div class="form-group row <?php if ($filepath_empty) echo "has-error";?>">
           <label for="inputImage" class="col-sm-2 col-form-label">Image *</label>
-          <div class="col-sm-9">
-            <input type="hidden" class="form-control" id="inputFilePath" name="filepath" value=<?php echo "$filepath" ?>>
-            <input type="file" class="form-control" id="inputFile" name="filename">
-            <small id="fileHelp" class="form-text text-muted">
-              <?php 
-                if (empty($filepath)) {
-                  echo "<span style='color:red'>No image uploaded<span>";
-                } else {
-                  echo "File is uploaded to: <a href='$filepath' target=blank>$filepath</a>";
-                }
-              ?>
+          <div class="col-sm-10">
+            <div class="input-group">
+              <input type="hidden" class="form-control" id="inputFilePath" name="filepath" value=<?php echo "$filepath" ?>>
+              <input type="file" class="form-control" id="inputFile" name="filename">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default" id="uploadButton">Upload</button>
+              </div>
+              
+            </div>
+            <small id="fileHelp" class="form-text text-muted"><?php 
+                  if (empty($filepath)) {
+                    echo "<span style='color:red'>No image uploaded<span>";
+                  } else {
+                    echo "File is uploaded to: <a href='$filepath' target=blank>$filepath</a>";
+                  }
+            ?>
             </small>
           </div>
-          <!-- <div class="col-sm-3 progress progress-striped">
-            <div class="progress-bar" style="width: 60%;">
-              <span class="sr-only">60% Complete</span>
-            </div>
-          </div> -->
-          <div class="col-sm-1">
-            <button type="button" class="btn btn-default" id="uploadButton">Upload</button>
-          </div>  
         </div>
 
         <!-- days -->

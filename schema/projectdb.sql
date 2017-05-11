@@ -15,6 +15,7 @@ CREATE TABLE users (
   uname           varchar(45) NULL,
   uinterests      varchar(512) NULL,
   ucity           varchar(45) NULL,
+  umarkedreaddate timestamp DEFAULT current_timestamp,
   PRIMARY KEY(uid)
 );
 
@@ -77,7 +78,9 @@ CREATE TABLE follows (
   uid1   varchar(45) NOT NULL,
   uid2   varchar(45) NOT NULL CHECK(uid1 != uid2),
   fdate  timestamp DEFAULT current_timestamp,
-  PRIMARY KEY (uid1, uid2)
+  PRIMARY KEY (uid1, uid2),
+  FOREIGN KEY (uid1) REFERENCES users (uid),
+  FOREIGN KEY (uid2) REFERENCES users (uid)
 );
 
 
@@ -284,7 +287,7 @@ CREATE OR REPLACE VIEW events_view (action, date, uid, id1, id2, context) AS
    
    UNION ALL
    
-  (SELECT text 'pledge' AS action, 
+  (SELECT text 'unpledge' AS action, 
        pldate AS date,  
          pledge.uid AS uid, 
          pledge.pid::varchar AS id1, 
@@ -320,7 +323,7 @@ CREATE OR REPLACE VIEW events_view (action, date, uid, id1, id2, context) AS
          
     UNION ALL
    
-  (SELECT text 'cancell' AS action, 
+  (SELECT text 'cancel' AS action, 
        pclosedate AS date,  
          uid AS uid, 
          pid::varchar AS id1, 

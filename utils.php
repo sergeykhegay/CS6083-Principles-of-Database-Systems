@@ -16,10 +16,11 @@
   };
 
   function pg_to_php_date($pg_date) {
-    $fomat = arguments[1];
+    $format = arguments[1];
     date_default_timezone_set("UTC");
-    if (empty($format))
+    if (empty($format)) {
       $format = 'M d, Y';
+    }
     return date($format, strtotime($pg_date));
   }
 
@@ -57,6 +58,30 @@
     pg_close();
 
     return pg_fetch_array($result);
+  }
+
+  function get_umarkreaddate($uid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "SELECT umarkedreaddate
+         FROM users
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    return pg_fetch_array($result)["umarkedreaddate"];
+  }
+
+  function user_update_umarkreaddate($uid) {
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "UPDATE users
+          SET umarkedreaddate = current_timestamp
+        WHERE uid='$uid';"
+    );
+    pg_close();
+
+    return is_resource($result);
   }
 
 // PROJECT
@@ -174,7 +199,9 @@
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
       "UPDATE project  
-         SET pcancelled = 'TRUE' pactive = 'FALSE'
+         SET pcancelled = 'TRUE',
+             pactive = 'FALSE',
+             plosedate = current_timestamp
         WHERE pid=$pid ;"
     );
     pg_close();
@@ -186,7 +213,8 @@
     $result = pg_query($db_connection, 
       "SELECT * 
          FROM pledge natural join creditcard
-        WHERE uid = '$uid' AND plcancelled = 'FALSE';"
+        WHERE uid = '$uid' AND 
+              plcancelled = 'FALSE';"
     );
     
     return $result;
@@ -440,7 +468,7 @@
   }
 
 
-  function  insert_update($pid, $title, $description, $filepath, $mediavideo) {
+  function insert_update($pid, $title, $description, $filepath, $mediavideo) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
       "INSERT INTO update (pid, updtitle, upddescription, updmedia, updmediavideo)
@@ -453,104 +481,25 @@
   };
 
 
-
-
-
-// PRODUCT
-  function product_exists_and_available($pname) {
+// EVENTS
+  function get_events_from($uid, $date) {
     $db_connection = get_db_connection();
     $result = pg_query($db_connection, 
-      "SELECT * 
-         FROM product 
-        WHERE pname='$pname' AND 
-              (pstatus='available' OR pstatus='backordered');"
+      "SELECT *
+         FROM events_view
+              CROSS JOIN follows
+        WHERE uid1 = '$uid' AND
+              uid = uid2 AND
+              date >= '$date'::timestamp
+        ORDER BY date;"
     );
-    
-    return pg_num_rows($result) == 1;
-  };
+    pg_close();
 
-  function get_products($keyword) {
-    $db_connection = get_db_connection();
-    $result = null;
-
-    if (empty($keyword)) {
-      $result = pg_query($db_connection, "SELECT * FROM product;");
-    }
-    else {
-      $result = pg_query($db_connection, 
-        "SELECT * 
-         FROM product 
-         WHERE pdescription ILIKE '%$keyword%' OR
-               pname ILIKE '%$keyword%';");
-    }
-    
     if (!is_resource($result)) {
       return null;
     }
     return pg_fetch_all($result);
-  };
+  }
 
-// PURCHASES
-  function get_orders($username) {
-    $db_connection = get_db_connection();
-    $result = pg_query($db_connection, 
-      "SELECT * 
-       FROM purchase 
-       WHERE cname='$username'
-       ORDER BY putime DESC;");
-    
-    if (!is_resource($result)) {
-      return null;
-    }
 
-    return pg_fetch_all($result);
-  };
-
-  // returns false if no pending order exist
-  function retrieve_pending_order($cname, $pname) {
-    $db_connection = get_db_connection();
-    $result = pg_query($db_connection, 
-      "SELECT * 
-       FROM purchase 
-       WHERE cname='$cname' AND 
-             pname='$pname' AND 
-             status='pending'
-       ORDER BY putime DESC;"
-    );
-    
-    if (pg_num_rows($result) <= 0) {
-      return false;
-    }
-
-    return pg_fetch_array($result);
-  };
-
-  function update_order($cname, $pname, $putime, $quantity, $price) {
-    $db_connection = get_db_connection();
-    $additional_price = $quantity * $price;
-    $result = pg_query($db_connection, 
-      "UPDATE purchase
-       SET quantity = quantity + $quantity,
-           puprice = puprice + $additional_price,
-           putime = NOW(),
-           status = 'pending'
-       WHERE cname='$cname' AND 
-             pname='$pname' AND 
-             putime='$putime'::timestamp AND
-             status='pending';"
-    );
-    
-    return is_resource($result);
-  };
-
-  function insert_order($cname, $pname, $quantity, $price) {
-    $db_connection = get_db_connection();
-    $total_price = $quantity * $price;
-    $result = @pg_query($db_connection, 
-      "INSERT INTO purchase 
-        VALUES ('$cname', '$pname', NOW(), '$quantity', '$total_price', 'pending');"
-    );
-    
-    return is_resource($result);
-  };
 ?>

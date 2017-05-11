@@ -3,10 +3,9 @@
   session_start(); 
   require_once "require_login.php";
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-  <?php $_title = "Main @ Cabbage"; include "inc_head.inc";?>
+  <?php $_title = "Projects Dashboard @ Cabbage"; include "inc_head.inc";?>
   <body>
     <div class="container">
       <?php include "inc_navbar.inc"; ?>
@@ -15,11 +14,6 @@
         $no_user_flag = $_GET["no_such_user"] == "true";
         if ($no_user_flag) {
           echo "<div class=\"alert alert-danger\"><strong>Error!</strong> The user does not exist.</div>";
-        }
-      ?>
-      <?php
-        if (isset($_GET["logged_out"])) {
-          echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
         }
       ?>
 
@@ -39,17 +33,16 @@
         </li>
       </ul>
 
-
       <?php
         $is_cancelled = isset($_GET["cancel"]);
         if($is_cancelled) {
           echo "<div class=\"alert alert-success\">
                   <strong>Pledge cancelled successfully!</strong> 
                 </div>";
-          $pid=$_GET["pid"];
-          cancel_pledge($pid, $_SESSION["uid"]);
+          $pid=test_input($_GET["pid"]);
+          cancel_pledge($pid, test_input($_SESSION["uid"]));
         }
-        $pledges = get_pledges($_SESSION["uid"]);
+        $pledges = get_pledges(test_input($_SESSION["uid"]));
       ?>
 
       <table class="table">

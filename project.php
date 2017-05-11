@@ -69,6 +69,9 @@
             <?php } elseif ($project_success) { ?>
               <button class="btn btn-success" 
                     type="submit" style="align:bottom;display:block;width:70px">Funded</button>
+            <?php } elseif ($project_active) { ?>
+              <button class="btn btn-info" 
+                    type="submit" style="align:bottom;display:block;width:70px">Active</button>
             <?php } else { ?>
               <button class="btn btn-danger" 
                     type="submit" style="align:bottom;display:block;width:70px">Fail</button>
@@ -121,10 +124,13 @@
                   
                   <?php if ($update["updmediavideo"] === 't') { ?>
                     <div class="view overlay hm-white-slight" style="text-align:center">
-                        <video  style="text-align:center" controls>
-                          <source src='<?=$update["updmedia"]?>' type="video/mp4">
+                        <!-- <video  style="text-align:center" controls>
+                          <source src='<$update["updmedia"]?>' type="video/mp4">
                           Your browser does not support the video tag.
-                        </video>
+                        </video> -->
+                        <div class="embed-responsive embed-responsive-16by9">
+                          <iframe class="embed-responsive-item" src='<?=$update["updmedia"]?>'></iframe>
+                        </div>
                         <a href="#">
                             <div class="mask waves-effect waves-light"></div>
                         </a>

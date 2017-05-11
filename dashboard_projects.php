@@ -1,9 +1,11 @@
 <?php require_once "utils.php"; ?>
-<?php session_start(); ?>
-
+<?php 
+  session_start(); 
+  require_once "require_login.php"; 
+?>
 <!DOCTYPE html>
 <html lang="en">
-  <?php $_title = "Main @ Cabbage"; include "./inc_head.inc";?>
+  <?php $_title = "Events Dashboard @ Cabbage"; include "./inc_head.inc";?>
   <body>
     <div class="container">
       <?php include "./inc_navbar.inc"; ?>
@@ -12,11 +14,6 @@
         $no_user_flag = $_GET["no_such_user"] == "true";
         if ($no_user_flag) {
           echo "<div class=\"alert alert-danger\"><strong>Error!</strong> The user does not exist.</div>";
-        }
-      ?>
-      <?php
-        if (isset($_GET["logged_out"])) {
-          echo "<div class=\"alert alert-info\"><strong>Info!</strong> Logged out.</div>";
         }
       ?>
       
@@ -42,10 +39,10 @@
           echo "<div class=\"alert alert-success\">
                   <strong>Project cancelled successfully!</strong> 
                 </div>";
-          $pid=$_GET["pid"];
+          $pid=test_input($_GET["pid"]);
           cancel_project($pid);
         }
-        $project = get_user_project($_SESSION["uid"]);
+        $project = get_user_project(test_input($_SESSION["uid"]));
       ?>
       <table class="table">
         <caption> </caption>
@@ -87,7 +84,7 @@
             </td>
             <td>
               <a href="./project_update.php?pid=<?=$project_info->pid ?>">
-              <button class="btn btn-primary btn-sm">update</button> </a>
+              <button class="btn btn-primary btn-sm">Update</button> </a>
               <button onclick="changePidTo(<?=$project_info->pid?>);" type="button" class="btn btn-primary btn-sm <?=$disable?>" 
               <?php if($disable == 'active'){ echo "data-toggle=\"modal\" data-target=\"#myModal\"";}?> >Cancel Project</button>
             </td>
@@ -132,15 +129,9 @@
       $(document).ready(function() {
         changePidTo = function(pid) {
           $("#cancelForm").attr("action", "./dashboard_projects.php?cancel=true&pid=" + pid);
-        }
+        };
       });
     </script>
-
-    </div>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
 
   </body>
 </html>
