@@ -271,7 +271,7 @@
     $result = pg_query($db_connection, 
       "SELECT * 
          FROM pledge natural join creditcard
-        WHERE uid = '$uid';"
+        WHERE uid = '$uid' AND plcancelled = 'FALSE';"
     );
     
     return $result;
@@ -512,6 +512,14 @@
       return null;
     }
     return pg_fetch_all($result);
+  }
+
+  function add_credit_card($uid, $ccnumber, $ccname){
+    $db_connection = get_db_connection();
+    $result = pg_query($db_connection, 
+      "INSERT INTO creditcard( uid, ccname, ccnumber, ccactive) 
+      VALUES ('$uid', '$ccname', '$ccnumber', TRUE);"
+    );
   }
 
 

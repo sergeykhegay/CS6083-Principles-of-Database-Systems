@@ -242,7 +242,7 @@
                         }
                       ?>
                     </select>
-                    <p class="help-block">Add a new credit card <a href="">here</a></p>
+                    <p class="help-block">Add a new credit card <a href="./creditcard.php">here</a></p>
                   </div>
                   <div class="form-group">
                     <div class="input-group">
